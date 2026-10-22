@@ -1,0 +1,42 @@
+# ONLY for cPanel / Apache / LiteSpeed hosting. Copy this file into public_html next to index.html.
+# Do NOT use it on Cloudflare Pages or Netlify (they ignore it, so there is no need).
+#
+# If the site shows "500 Internal Server Error" after you upload this file, just delete it:
+# the website itself works fine without it.
+#
+# Assumes your main address is  https://www.manojornaments.com  (same as in index.html).
+
+RewriteEngine On
+
+# 1) always https
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2) manojornaments.com  ->  www.manojornaments.com
+RewriteCond %{HTTP_HOST} ^manojornaments\.com$ [NC]
+RewriteRule ^ https://www.manojornaments.com%{REQUEST_URI} [L,R=301]
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  <Files "admin.html">
+    Header set X-Robots-Tag "noindex, nofollow"
+    Header set Cache-Control "no-store"
+  </Files>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json application/xml text/plain
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 day"
+  ExpiresByType image/png "access plus 1 day"
+  ExpiresByType image/webp "access plus 1 day"
+</IfModule>
