@@ -291,7 +291,6 @@ body.pf-open{overflow:hidden}
     </div>
   </article>
   </div>
-  <p id="prodEmpty" hidden class="text-sm text-muted">Our new collection is being updated. Please check back soon, or contact us for the latest designs.</p>
 </section>
 
 <!-- GALLERY -->
@@ -401,13 +400,13 @@ body.pf-open{overflow:hidden}
           <span id="mailText" class="min-w-0 break-all text-muted">usa@manojornaments.com</span>
           <button id="copyMail" type="button" class="chip !px-2.5 !py-1 !text-[10px]">Copy</button>
         </li>
-        <li class="flex items-center gap-3"><i data-i="clock" class="h-4 w-4 text-goldink"></i><span class="font-semibold">Hours:</span> <span class="text-muted">Mon - Sat (10:00 AM – 7:00 PM)</span></li>
+        <li class="flex items-center gap-3"><i data-i="clock" class="h-4 w-4 text-goldink"></i><span class="font-semibold"> Office Hours:</span> <span class="text-muted">Mon - Sun (10:00 AM – 7:00 PM)</span></li>
       </ul>
     </div>
 
     <div class="min-w-0 rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-8 md:col-span-7">
-      <form id="leadForm" action="https://script.google.com/macros/s/AKfycbzsi0Yh-viBPx0wDwIvKH6nQe3oC1tmbK7KHe_y15wS4Eb4OoW8HTBV8HVo0BlIQkRx/exec" method="POST" target="hidden_iframe" class="space-y-4">
-        <h3 class="border-b border-line pb-3 font-display text-2xl font-semibold">Customer Enquiry Form</h3>
+      <form id="leadForm" action="https://script.google.com/macros/s/AKfycbwwC2ZsNHin0XxgRiIKILeSOIazEjZWf-ooChyNtFv8bdQvDcwscoeTc3P_l1aFD-FGsQ/exec" method="POST" target="hidden_iframe" class="space-y-4">
+        <h3 class="border-b border-line pb-3 font-display text-2xl font-semibold"> Form</h3>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="lbl" for="fName">Your Name *</label>
@@ -495,10 +494,15 @@ body.pf-open{overflow:hidden}
   <input type="hidden" name="name"><input type="hidden" name="phone"><input type="hidden" name="email"><input type="hidden" name="message">
 </form>
 <iframe name="popup_iframe" id="popup_iframe" title="Pop-up form submission target" style="display:none;"></iframe>
+<iframe name="popup_iframe2" id="popup_iframe2" title="Pop-up e-mail submission target" style="display:none;"></iframe>
+<!-- same details are also sent to the second script, which e-mails them -->
+<form id="popupMail" action="https://script.google.com/macros/s/AKfycbwwC2ZsNHin0XxgRiIKILeSOIazEjZWf-ooChyNtFv8bdQvDcwscoeTc3P_l1aFD-FGsQ/exec" method="POST" target="popup_iframe2" hidden>
+  <input type="hidden" name="name"><input type="hidden" name="phone"><input type="hidden" name="email"><input type="hidden" name="message">
+</form>
 <dialog id="popupDlg" class="pf" aria-labelledby="pfTitle">
   <div class="pf-in">
     <button type="button" id="pfClose" class="iconbtn pf-close" aria-label="Close"><i data-i="x" class="h-5 w-5"></i></button>
-    <form id="popupForm" action="https://script.google.com/macros/s/AKfycbx3kwqUbtWC-mrjTiIbfG6dbGdz-gcqZjr-XiOu28EhlSKkIzASeLfzlxDA3TSS05FM/exec" method="POST" target="popup_iframe">
+    <form id="popupForm" action="https://script.google.com/macros/s/AKfycbwwC2ZsNHin0XxgRiIKILeSOIazEjZWf-ooChyNtFv8bdQvDcwscoeTc3P_l1aFD-FGsQ/exec" method="POST" target="popup_iframe">
       <div class="pf-head space-y-1">
         <span class="eyebrow">Welcome</span>
         <h2 id="pfTitle" class="font-display text-3xl font-semibold leading-snug">Let us stay in touch</h2>
@@ -619,7 +623,7 @@ const applyGalFilter = () => {
     f.hidden = !show;
     if (show) n++;
   });
-  galCount.textContent = galItems().length ? n + (n === 1 ? ' piece' : ' pieces') : 'New pieces coming soon';
+  galCount.textContent = n + (n === 1 ? ' piece' : ' pieces');
   galFilters.querySelectorAll('[data-f]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === galCat)));
 };
 const buildGalFilters = () => {
@@ -633,25 +637,6 @@ galFilters.addEventListener('click', e => {
   const b = e.target.closest('[data-f]'); if (!b) return;
   galCat = b.dataset.f; applyGalFilter();
 });
-
-/* ---------- built-in pieces whose photo FILE is missing are removed, so there is never an empty box ---------- */
-const syncEmpty = () => { const n = $('#prodEmpty'); if (n) n.hidden = !!$('#prodGrid > article'); };
-const dropIfNoPhoto = im => {
-  if (!im || im.tagName !== 'IMG') return false;
-  const src = im.getAttribute('src') || '';
-  if (!src || /^(https?:|data:|blob:|\/\/)/i.test(src)) return false;        // photos added from admin.html (Google Drive) are not touched
-  const box = im.closest('#prodGrid > article:not([data-dyn]), #galGrid > [data-gal]:not([data-dyn])');
-  if (!box) return false;
-  box.remove(); return true;
-};
-const afterDrop = () => { buildGalFilters(); syncEmpty(); };
-document.addEventListener('error', e => { if (dropIfNoPhoto(e.target)) afterDrop(); }, true);
-const sweepMissing = () => {                                                  // photos that already failed before this script started
-  let any = false;
-  document.querySelectorAll('#prodGrid img, #galGrid img').forEach(im => { if (im.complete && im.naturalWidth === 0 && dropIfNoPhoto(im)) any = true; });
-  if (any) afterDrop();
-};
-sweepMissing(); addEventListener('load', sweepMissing);
 
 const openLb = fig => {
   const d = fig.dataset;
@@ -678,7 +663,7 @@ lb.addEventListener('close', () => document.body.classList.remove('lb-open'));
 lbEnq.addEventListener('click', () => { const n = lbEnq.dataset.name; lb.close(); enquire(n); });
 
 /* ---------- new products added by the owner in admin.html (stored in a Google Sheet) ---------- */
-const PRODUCTS_API ='https://script.google.com/macros/s/AKfycbzLAOxdDhC_uMP8QihO7fxfDH-hiVm9G4rg0eO5c5A23iHSt8DU968O5skJBnuK8G2b/exec';
+const PRODUCTS_API ='https://script.google.com/macros/s/AKfycbx3kwqUbtWC-mrjTiIbfG6dbGdz-gcqZjr-XiOu28EhlSKkIzASeLfzlxDA3TSS05FM/exec';
 const CACHE_KEY = 'mo_new_products_v1';
 const imgSrc = id => `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w800`;
 const imgAlt = id => `https://lh3.googleusercontent.com/d/${encodeURIComponent(id)}=w800`;
@@ -724,7 +709,7 @@ const renderNew = rows => {
     $('#prodGrid').insertAdjacentHTML('afterbegin', items.map(prodCard).join(''));
     galGrid.insertAdjacentHTML('afterbegin', items.map(galCard).join(''));
   }
-  buildGalFilters(); syncEmpty();
+  buildGalFilters();
 };
 const loadNewProducts = async () => {
   let shown = null;
@@ -976,7 +961,9 @@ $('#formReset').addEventListener('click', () => {
       try { document.cookie = KEY + '=1; max-age=31536000; path=/; SameSite=Lax'; } catch (e) {}
     };
     const pf = $('#popupForm'), pfBtn = $('#pfSubmit'), pfErr = $('#pfError'), pfDone = $('#pfDone');
-    let pfSent = false, pfTimer = 0;
+    const pfMail = $('#popupMail');
+    let pfSent = false, pfTimer = 0, pfLoads = 0;
+    const pfFinish = () => { pfSent = false; clearTimeout(pfTimer); pfReset(); pf.hidden = true; pfDone.hidden = false; $('#pfOk').focus(); };
 
     const force = /[?&]popup=1(&|$)/.test(location.search);   // owner test switch: yoursite.com/?popup=1 always shows it
     const tryOpen = () => {
@@ -1000,16 +987,22 @@ $('#formReset').addEventListener('click', () => {
     const pfReset = () => { pfBtn.disabled = false; pfBtn.textContent = 'Send My Details'; };
     pf.addEventListener('submit', e => {
       if (navigator.onLine === false) { e.preventDefault(); pfErr.hidden = false; return; }   // offline: do not pretend it was sent
-      pfSent = true; pfErr.hidden = true;
+      pfSent = true; pfLoads = 0; pfErr.hidden = true;
       pfBtn.disabled = true; pfBtn.textContent = 'Sending…';
       clearTimeout(pfTimer);
-      pfTimer = setTimeout(() => { if (pfSent) { pfSent = false; pfReset(); pfErr.hidden = false; } }, 20000);
+      // same details also go to the second script (the one that e-mails them)
+      ['name', 'phone', 'email', 'message'].forEach(k => { pfMail.elements[k].value = pf.elements[k].value; });
+      try { pfMail.submit(); } catch (e) {}
+      // done when both scripts answered; after 20 s it is still a success if at least one answered
+      pfTimer = setTimeout(() => {
+        if (!pfSent) return;
+        if (pfLoads > 0) pfFinish(); else { pfSent = false; pfReset(); pfErr.hidden = false; }
+      }, 20000);
     });
-    $('#popup_iframe').addEventListener('load', () => {
-      if (!pfSent) return;                          // ignore the empty first load of the hidden frame
-      pfSent = false; clearTimeout(pfTimer); pfReset();
-      pf.hidden = true; pfDone.hidden = false; $('#pfOk').focus();
-    });
+    ['#popup_iframe', '#popup_iframe2'].forEach(id => $(id).addEventListener('load', () => {
+      if (!pfSent) return;                          // ignore the empty first load of the hidden frames
+      if (++pfLoads >= 2) pfFinish();
+    }));
   }
 }
 
