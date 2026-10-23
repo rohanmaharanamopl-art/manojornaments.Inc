@@ -489,16 +489,7 @@ body.pf-open{overflow:hidden}
 
 <!-- First-visit welcome pop-up: shown once per visitor. Saves straight to the e-mail Apps Script (action below). -->
 <!-- Contact section form: the same details are also copied to the e-mail script (sheet saving above is unchanged) -->
-<iframe name="lead_mail_iframe" id="lead_mail_iframe" title="Enquiry e-mail submission target" style="display:none;"></iframe>
-<form id="leadMail" action="https://script.google.com/macros/s/AKfycbwwC2ZsNHin0XxgRiIKILeSOIazEjZWf-ooChyNtFv8bdQvDcwscoeTc3P_l1aFD-FGsQ/exec" method="POST" target="lead_mail_iframe" hidden>
-  <input type="hidden" name="name"><input type="hidden" name="phone"><input type="hidden" name="email"><input type="hidden" name="message">
-</form>
 <iframe name="popup_iframe" id="popup_iframe" title="Pop-up form submission target" style="display:none;"></iframe>
-<iframe name="popup_iframe2" id="popup_iframe2" title="Pop-up e-mail submission target" style="display:none;"></iframe>
-<!-- same details are also sent to the second script, which e-mails them -->
-<form id="popupMail" action="https://script.google.com/macros/s/AKfycbwwC2ZsNHin0XxgRiIKILeSOIazEjZWf-ooChyNtFv8bdQvDcwscoeTc3P_l1aFD-FGsQ/exec" method="POST" target="popup_iframe2" hidden>
-  <input type="hidden" name="name"><input type="hidden" name="phone"><input type="hidden" name="email"><input type="hidden" name="message">
-</form>
 <dialog id="popupDlg" class="pf" aria-labelledby="pfTitle">
   <div class="pf-in">
     <button type="button" id="pfClose" class="iconbtn pf-close" aria-label="Close"><i data-i="x" class="h-5 w-5"></i></button>
@@ -935,12 +926,6 @@ $('#hidden_iframe').addEventListener('load', () => {
   submitted = false; clearTimeout(timer); resetBtn();
   form.hidden = true; $('#formDone').hidden = false;
 });
-/* also send the same details to the e-mail script (fire-and-forget; the sheet flow above decides success) */
-form.addEventListener('submit', () => {
-  const m = $('#leadMail');
-  ['name', 'phone', 'email', 'message'].forEach(k => { m.elements[k].value = form.elements[k].value; });
-  try { m.submit(); } catch (e) {}
-});
 $('#formReset').addEventListener('click', () => {
   form.reset(); errBox.hidden = true;
   $('#formDone').hidden = true; form.hidden = false; $('#fName').focus();
@@ -961,7 +946,6 @@ $('#formReset').addEventListener('click', () => {
       try { document.cookie = KEY + '=1; max-age=31536000; path=/; SameSite=Lax'; } catch (e) {}
     };
     const pf = $('#popupForm'), pfBtn = $('#pfSubmit'), pfErr = $('#pfError'), pfDone = $('#pfDone');
-    const pfMail = $('#popupMail');
     let pfSent = false, pfTimer = 0, pfLoads = 0;
     const pfFinish = () => { pfSent = false; clearTimeout(pfTimer); pfReset(); pf.hidden = true; pfDone.hidden = false; $('#pfOk').focus(); };
 
@@ -990,19 +974,12 @@ $('#formReset').addEventListener('click', () => {
       pfSent = true; pfLoads = 0; pfErr.hidden = true;
       pfBtn.disabled = true; pfBtn.textContent = 'Sending…';
       clearTimeout(pfTimer);
-      // same details also go to the second script (the one that e-mails them)
-      ['name', 'phone', 'email', 'message'].forEach(k => { pfMail.elements[k].value = pf.elements[k].value; });
-      try { pfMail.submit(); } catch (e) {}
-      // done when both scripts answered; after 20 s it is still a success if at least one answered
-      pfTimer = setTimeout(() => {
-        if (!pfSent) return;
-        if (pfLoads > 0) pfFinish(); else { pfSent = false; pfReset(); pfErr.hidden = false; }
-      }, 20000);
+      pfTimer = setTimeout(() => { if (pfSent) { pfSent = false; pfReset(); pfErr.hidden = false; } }, 20000);
     });
-    ['#popup_iframe', '#popup_iframe2'].forEach(id => $(id).addEventListener('load', () => {
-      if (!pfSent) return;                          // ignore the empty first load of the hidden frames
-      if (++pfLoads >= 2) pfFinish();
-    }));
+    $('#popup_iframe').addEventListener('load', () => {
+      if (!pfSent) return;                          // ignore the empty first load of the hidden frame
+      pfFinish();
+    });
   }
 }
 
