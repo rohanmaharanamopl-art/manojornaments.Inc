@@ -85,6 +85,14 @@ ul.items .badge { display: inline-block; margin-top: 2px; padding: 1px 8px; bord
 ul.items .vthumb { width: 84px; height: 63px; border-radius: 8px; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; flex: none; }
 ul.items li.is-hidden .vthumb { opacity: 0.4; }
 ul.items .live { display: inline-block; margin-top: 2px; padding: 1px 8px; border-radius: 999px; background: var(--ok); color: #fff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* registered customers (website login) */
+.ubar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 14px; }
+.ubar input { flex: 1 1 200px; width: auto; }
+.ucount { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+ul.items .ucontact { word-break: break-all; }
+ul.items li.is-blocked strong { color: var(--err); }
+ul.items .badge.red { background: var(--err); }
 </style>
 </head>
 <body>
@@ -231,6 +239,19 @@ ul.items .live { display: inline-block; margin-top: 2px; padding: 1px 8px; borde
       <p id="heroListMsg" class="msg" hidden></p>
       <ul id="heroList" class="items"></ul>
     </section>
+
+    <section class="card" id="usersCard">
+      <h2>Registered customers (website login)</h2>
+      <p class="hint">Jo customers website par <b>Register / Login</b> karte hain, unka data yahan alag se dikhta hai (Google Sheet ka naya <b>Users</b> tab). Ye aapke Products, Hero ya Email data se mix nahi hota, aur yahan se kuch <b>delete nahi</b> hota. <b>Block</b> karne par customer login nahi kar sakta. Customer password bhool jaye to <b>New password</b> se aap naya set karke use bata sakte hain.</p>
+      <div class="ubar">
+        <input type="search" id="userSearch" placeholder="Naam, email ya phone se dhundhein…" aria-label="Search customers">
+        <span class="ucount" id="userCount"></span>
+        <button type="button" class="ghost" id="userCsv" disabled>Download CSV</button>
+        <button type="button" class="ghost" id="userRefresh">Refresh</button>
+      </div>
+      <p id="userMsg" class="msg" hidden></p>
+      <ul id="userList" class="items"></ul>
+    </section>
   </div>
 </main>
 
@@ -256,6 +277,8 @@ const ERR = {
   bad_video: 'Yeh video link sahi nahi hai. YouTube ka link (youtube.com/watch?v=... ya youtu.be/...) ya .mp4 / .webm file ka https link daalein.',
   too_many: 'Hero me bahut zyada items ho gaye (max 12). Pehle kuch purane Delete kar dein.',
   bad_request: 'The Google script is still the OLD version. Paste the new Code.gs, then Deploy > Manage deployments > Edit > New version > Deploy.',
+  weak_password: 'Password kam se kam 8 akshar ka hona chahiye.',
+  bad_request_users: 'Google script purana hai. Naya Code.gs paste karke New version deploy karein.',
   server_error: 'The Google script had a problem. Please try again.',
   network: 'Could not reach the Google script. Check your internet, and check that the script URL is correct and the script is deployed for "Anyone".'
 };
@@ -292,16 +315,16 @@ $('#loginForm').addEventListener('submit', async e => {
   btn.disabled = false;
   if (!res.ok) { adminKey = ''; return say(msg, errText(res), 'err'); }
   $('#password').value = ''; say(msg, '');
-  remember(adminKey); show(true); loadList(); loadHero();
+  remember(adminKey); show(true); loadList(); loadHero(); loadUsers();
 });
-$('#logoutBtn').addEventListener('click', () => { adminKey = ''; remember(''); exitEdit(); show(false); });
+$('#logoutBtn').addEventListener('click', () => { adminKey = ''; remember(''); exitEdit(); allUsers = []; show(false); });
 
 (async () => {
   let saved = ''; try { saved = sessionStorage.getItem('mo_admin_key') || ''; } catch (e) {}
   if (saved) {
     adminKey = saved;
     const res = await call({ action: 'check' });
-    if (res.ok) { show(true); loadList(); loadHero(); return; }
+    if (res.ok) { show(true); loadList(); loadHero(); loadUsers(); return; }
     adminKey = ''; remember('');
   }
   show(false);
@@ -690,6 +713,93 @@ async function loadHero() {
     list.append(li);
   });
 }
+
+/* =====================  REGISTERED CUSTOMERS (website login)  ===================== */
+let allUsers = [];
+const fmtDate = ms => ms ? new Date(ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
+const fmtDateTime = ms => ms ? new Date(ms).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+
+async function loadUsers() {
+  const msg = $('#userMsg');
+  const data = await call({ action: 'users_list' });
+  if (!data.ok) {
+    allUsers = []; renderUsers();
+    return say(msg, data.error === 'bad_request' ? ERR.bad_request_users : errText(data), 'err');
+  }
+  say(msg, '');
+  allUsers = data.users || [];
+  renderUsers();
+}
+
+function renderUsers() {
+  const list = $('#userList'), msg = $('#userMsg');
+  const q = $('#userSearch').value.trim().toLowerCase();
+  const rows = allUsers.filter(u => !q || [u.name, u.email, u.phone].join(' ').toLowerCase().includes(q));
+  list.textContent = '';
+  $('#userCount').textContent = allUsers.length ? (q ? rows.length + ' / ' : '') + allUsers.length + (allUsers.length === 1 ? ' customer' : ' customers') : '';
+  $('#userCsv').disabled = !allUsers.length;
+  if (!allUsers.length) { if (msg.hidden) say(msg, 'Abhi kisi customer ne register nahi kiya.'); return; }
+  if (!rows.length) { say(msg, 'Is search se koi customer nahi mila.'); return; }
+  if (msg.className.indexOf('err') < 0) say(msg, '');
+
+  rows.forEach(u => {
+    const li = document.createElement('li');
+    if (u.status === 'blocked') li.className = 'is-blocked';
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const strong = document.createElement('strong'); strong.textContent = u.name;
+    const c1 = document.createElement('small'); c1.className = 'ucontact'; c1.textContent = u.email + (u.phone ? ' · ' + u.phone : '');
+    meta.append(strong, c1);
+    const t = document.createElement('small');
+    t.textContent = 'Joined ' + fmtDate(u.created_ms) + ' · Last login ' + fmtDateTime(u.last_login_ms) + ' · ' + u.login_count + ' login' + (u.login_count === 1 ? '' : 's');
+    meta.append(t);
+    if (u.status === 'blocked') { const b = document.createElement('span'); b.className = 'badge red'; b.textContent = 'Blocked'; meta.append(b); }
+
+    const acts = document.createElement('div'); acts.className = 'acts';
+    const blk = document.createElement('button');
+    blk.type = 'button'; blk.className = 'ghost' + (u.status === 'blocked' ? '' : ' danger'); blk.textContent = u.status === 'blocked' ? 'Unblock' : 'Block';
+    blk.addEventListener('click', async () => {
+      if (u.status !== 'blocked' && !confirm('"' + u.name + '" ko block karein? Wo login nahi kar payega. (Unblock karke wapas chalu ho jayega, data delete nahi hoga.)')) return;
+      blk.disabled = true;
+      const res = await call({ action: 'users_block', id: u.id, blocked: u.status !== 'blocked' });
+      if (!res.ok) { blk.disabled = false; return say($('#userMsg'), errText(res), 'err'); }
+      loadUsers();
+    });
+    const rp = document.createElement('button');
+    rp.type = 'button'; rp.className = 'ghost'; rp.textContent = 'New password';
+    rp.addEventListener('click', async () => {
+      const pw = prompt('"' + u.name + '" ke liye naya password likhein (kam se kam 8 akshar). Ye customer ko aap khud bata dein.');
+      if (pw === null) return;
+      if (pw.length < 8) return say($('#userMsg'), ERR.weak_password, 'err');
+      rp.disabled = true;
+      const res = await call({ action: 'users_reset', id: u.id, password: pw });
+      rp.disabled = false;
+      if (!res.ok) return say($('#userMsg'), errText(res), 'err');
+      say($('#userMsg'), 'Done! "' + u.name + '" ka naya password set ho gaya. Purane logins band ho gaye.', 'ok');
+    });
+    acts.append(blk, rp);
+    li.append(meta, acts);
+    list.append(li);
+  });
+}
+
+$('#userSearch').addEventListener('input', renderUsers);
+$('#userRefresh').addEventListener('click', loadUsers);
+$('#userCsv').addEventListener('click', () => {
+  // cells that start with = + - @ could run as a formula in Excel, so they get a leading quote (real phone numbers are left alone)
+  const q = v => {
+    let t = String(v == null ? '' : v);
+    if (/^[=@\t\r]/.test(t) || (/^[+\-]/.test(t) && !/^\+?[\d\s()-]+$/.test(t))) t = "'" + t;
+    return '"' + t.replace(/"/g, '""') + '"';
+  };
+  const head = ['Name', 'Email', 'Phone', 'Status', 'Joined', 'Last login', 'Logins'];
+  const lines = [head.map(q).join(',')].concat(allUsers.map(u =>
+    [u.name, u.email, u.phone, u.status, fmtDateTime(u.created_ms), fmtDateTime(u.last_login_ms), u.login_count].map(q).join(',')));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'registered-customers.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
 })();
 </script>
 </body>
