@@ -48,7 +48,10 @@
         "manojornamentsinc.com"
       ],
       "url": "https://www.manojornamentsinc.com/",
-      "logo": "https://www.manojornamentsinc.com/logo.png",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.manojornamentsinc.com/favicon-96.png"
+      },
       "image": "https://www.manojornamentsinc.com/Images.jpeg",
       "description": "A family jewelry business founded in 1971 in India. 14K and 18K gold jewelry with diamonds and gemstones, for customers in India, the USA, the UAE, Hong Kong and Brunei.",
       "foundingDate": "1971",
@@ -84,10 +87,12 @@
       ],
       "contactPoint": {
         "@type": "ContactPoint",
+        "@id": "https://www.manojornamentsinc.com/#contactpoint",
         "contactType": "sales",
         "email": "usa@manojornaments.com",
         "telephone": "+1-914-882-3645",
-        "availableLanguage": "English"
+        "availableLanguage": "English",
+        "areaServed": ["IN", "US", "AE", "HK", "BN"]
       }
     },
     {
@@ -102,6 +107,10 @@
     },
     {
       "@type": "FAQPage",
+      "@id": "https://www.manojornamentsinc.com/#faq",
+      "isPartOf": {
+        "@id": "https://www.manojornamentsinc.com/#website"
+      },
       "mainEntity": [
         {
           "@type": "Question",
@@ -147,6 +156,7 @@
     }
   ]
 }
+</script>
 </script>
 <link rel="preload" as="image" href="Images.jpeg" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
