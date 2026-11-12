@@ -48,10 +48,7 @@
         "manojornamentsinc.com"
       ],
       "url": "https://www.manojornamentsinc.com/",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.manojornamentsinc.com/favicon-96.png"
-      },
+      "logo": "https://www.manojornamentsinc.com/logo.png",
       "image": "https://www.manojornamentsinc.com/Images.jpeg",
       "description": "A family jewelry business founded in 1971 in India. 14K and 18K gold jewelry with diamonds and gemstones, for customers in India, the USA, the UAE, Hong Kong and Brunei.",
       "foundingDate": "1971",
@@ -87,12 +84,10 @@
       ],
       "contactPoint": {
         "@type": "ContactPoint",
-        "@id": "https://www.manojornamentsinc.com/#contactpoint",
         "contactType": "sales",
         "email": "usa@manojornaments.com",
         "telephone": "+1-914-882-3645",
-        "availableLanguage": "English",
-        "areaServed": ["IN", "US", "AE", "HK", "BN"]
+        "availableLanguage": "English"
       }
     },
     {
@@ -107,10 +102,6 @@
     },
     {
       "@type": "FAQPage",
-      "@id": "https://www.manojornamentsinc.com/#faq",
-      "isPartOf": {
-        "@id": "https://www.manojornamentsinc.com/#website"
-      },
       "mainEntity": [
         {
           "@type": "Question",
@@ -156,7 +147,6 @@
     }
   ]
 }
-</script>
 </script>
 <link rel="preload" as="image" href="Images.jpeg" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -707,6 +697,21 @@ body.pf-open{overflow:hidden}
   </div>
 </dialog>
 
+<dialog id="askDlg" class="pf" aria-labelledby="askTitle">
+  <div class="pf-in">
+    <div class="pf-head space-y-1">
+      <h2 id="askTitle" class="font-display text-3xl font-semibold leading-snug">Are you an existing client?</h2>
+      <p class="text-sm text-muted">Existing clients just log in and do not need to fill the form again.</p>
+    </div>
+    <div class="pf-form">
+      <div class="pf-actions">
+        <button type="button" id="askYes" class="btn btn-gold w-full !py-3">Yes, log me in</button>
+        <button type="button" id="askNo" class="btn btn-ghost w-full !py-3">No, I am new</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="welcomeDlg" class="wl" aria-labelledby="wlTitle">
   <div class="wl-in">
     <p class="wl-brand font-display">Manoj Ornaments Inc</p>
@@ -1105,9 +1110,20 @@ const paintClient = () => {
   document.querySelectorAll('.js-login').forEach(el => { el.hidden = !!c; });
   document.querySelectorAll('.js-clientbox').forEach(el => { el.hidden = !c; });
   document.querySelectorAll('.js-client-name').forEach(el => { el.textContent = c ? c.name : ''; });
+  [['fName', 'fEmail', 'fPhone', 'fPass'], ['pfName', 'pfEmail', 'pfPhone', 'pfPass']].forEach(ids => {
+    const f = ids.map(i => document.getElementById(i));
+    if (f.some(x => !x)) return;
+    const box = f[3].closest('div');
+    box.hidden = !!c; f[3].required = !c;
+    if (c) {
+      if (!f[0].value) f[0].value = c.name;
+      if (!f[1].value) f[1].value = c.email;
+      if (!f[2].value && c.phone) f[2].value = c.phone;
+    }
+  });
 };
 const setClient = (user, token) => {
-  memClient = { name: firstName(user.name), email: user.email, token: token, exp: Date.now() + 30 * 864e5 };
+  memClient = { name: firstName(user.name), email: user.email, phone: user.phone || '', token: token, exp: Date.now() + 30 * 864e5 };
   try { localStorage.setItem(CLIENT_KEY, JSON.stringify(memClient)); } catch (e) {}
   paintClient();
 };
@@ -1178,7 +1194,22 @@ loginForm.addEventListener('submit', async e => {
   }
 });
 
+const askDlg = $('#askDlg'), ASK_KEY = 'mo_asked';
+const askedAlready = () => { try { return !!sessionStorage.getItem(ASK_KEY); } catch (e) { return false; } };
+const askNow = () => {
+  if (getClient() || askedAlready() || askDlg.open || loginDlg.open || $('#popupDlg').open) return;
+  try { sessionStorage.setItem(ASK_KEY, '1'); } catch (e) {}
+  try { askDlg.showModal(); } catch (e) { return; }
+  document.body.classList.add('pf-open');
+  $('#askYes').focus();
+};
+askDlg.addEventListener('close', () => document.body.classList.remove('pf-open'));
+$('#askYes').addEventListener('click', () => { askDlg.close(); openLogin(); });
+$('#askNo').addEventListener('click', () => { askDlg.close(); setTimeout(() => $('#fName').focus(), 50); });
+$('#leadForm').addEventListener('focusin', askNow);
+
 const registerLead = async (name, email, phone, pass) => {
+  if (getClient()) return;
   try {
     const d = await api({ action: 'signup', name: name, email: email, phone: phone, password: pass });
     if (d && d.ok) { setClient(d.user, d.token); return; }
