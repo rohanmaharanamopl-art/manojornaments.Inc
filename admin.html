@@ -4,131 +4,500 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Admin Panel | Google Sheets | Manoj Ornaments</title>
+<meta name="color-scheme" content="light dark">
+<title>Admin Dashboard | Manoj Ornaments</title>
 <style>
 :root {
-  --bg: #faf8f5; --surface: #ffffff; --line: #e8dfd1; --ink: #1f1b16; --muted: #625a50;
-  --gold: #966c34; --goldink: #8a662c; --ongold: #ffffff; --err: #b42318; --ok: #1a7f37;
+  --bg: #f6f2ec; --surface: #ffffff; --surface2: #faf7f2; --line: #e8dfd1; --ink: #1f1b16; --muted: #6b6256;
+  --gold: #966c34; --goldink: #8a662c; --ongold: #ffffff; --goldsoft: #f5ead7;
+  --err: #b42318; --errsoft: #fdecea; --ok: #1a7f37; --oksoft: #e6f4ea; --warn: #8a5a00; --warnsoft: #fff3d6;
+  --side: #1c1814; --sideink: #e9e1d3; --sidemuted: #a89d8b; --sideline: #2f2923;
+  --shadow: 0 1px 2px rgba(31,27,22,.05), 0 6px 18px rgba(31,27,22,.05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #13100d; --surface: #1c1814; --surface2: #231e19; --line: #342d25; --ink: #f1ebe0; --muted: #b0a591;
+    --gold: #b88a4a; --goldink: #dcb06a; --ongold: #1a1510; --goldsoft: #2e2416;
+    --err: #f08a80; --errsoft: #3a1f1c; --ok: #6bd08a; --oksoft: #17301f; --warn: #f0c36a; --warnsoft: #33280f;
+    --side: #0e0c0a; --sideline: #231f1a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #13100d; --surface: #1c1814; --surface2: #231e19; --line: #342d25; --ink: #f1ebe0; --muted: #b0a591;
+  --gold: #b88a4a; --goldink: #dcb06a; --ongold: #1a1510; --goldsoft: #2e2416;
+  --err: #f08a80; --errsoft: #3a1f1c; --ok: #6bd08a; --oksoft: #17301f; --warn: #f0c36a; --warnsoft: #33280f;
+  --side: #0e0c0a; --sideline: #231f1a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-:focus-visible { outline: 2px solid var(--goldink); outline-offset: 2px; }
-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
-header h1 { margin: 0; font-size: 1.2rem; font-family: Georgia, serif; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gold); }
-header small { display: block; font-size: 0.7rem; color: var(--muted); text-transform: none; letter-spacing: 0; font-family: system-ui, sans-serif; }
-main { max-width: 800px; margin: 30px auto; padding: 0 16px 60px; display: grid; gap: 24px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-.card h2 { margin-top: 0; font-size: 1.3rem; font-family: Georgia, serif; color: var(--ink); }
-.hint { color: var(--muted); font-size: 0.85rem; margin: 0 0 16px; }
-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; letter-spacing: 0.05em; }
-input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
-textarea { resize: vertical; min-height: 80px; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; }
+body.noscroll { overflow: hidden; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border-radius: 10px; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+a { color: inherit; }
+svg.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.serif { font-family: Georgia, "Times New Roman", serif; }
+
+/* ---------- form controls ---------- */
+label { display: block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 6px; }
+input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface2); color: var(--ink); font: inherit; }
+input[type="checkbox"] { width: 18px; height: 18px; padding: 0; accent-color: var(--gold); }
+input[type="file"] { padding: 8px; }
+textarea { resize: vertical; min-height: 84px; }
+::placeholder { color: var(--muted); opacity: .75; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 560px) { .row { grid-template-columns: 1fr; gap: 0; } }
-.checkbox-row { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
-.checkbox-row input { width: 18px; height: 18px; cursor: pointer; }
-.checkbox-row label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.9rem; letter-spacing: 0; color: var(--ink); font-weight: 500; }
-button { font: inherit; cursor: pointer; border-radius: 8px; }
-.btn { background: var(--gold); color: var(--ongold); border: none; padding: 12px 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 16px; width: 100%; }
-.btn:hover:not(:disabled) { filter: brightness(0.9); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); padding: 8px 14px; font-size: 0.8rem; font-weight: 700; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; margin: 16px 0 4px; }
+.checkbox-row label { margin: 0; text-transform: none; letter-spacing: 0; font-size: .9rem; font-weight: 500; color: var(--ink); cursor: pointer; }
+
+/* ---------- buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold); color: var(--ongold); border: 0; padding: 11px 18px; font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; }
+.btn:hover:not(:disabled) { filter: brightness(.92); }
+.btn.block { width: 100%; margin-top: 16px; }
+.ghost { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); padding: 7px 12px; font-size: .8rem; font-weight: 600; }
 .ghost:hover:not(:disabled) { border-color: var(--gold); }
-.ghost:disabled { opacity: 0.6; cursor: not-allowed; }
-.danger { color: var(--err); }
-.msg { margin-top: 12px; font-size: 0.9rem; font-weight: 500; }
+.ghost.sm { padding: 5px 10px; font-size: .76rem; }
+.ghost.danger { color: var(--err); }
+.ghost.danger:hover:not(:disabled) { border-color: var(--err); }
+.ghost.primary { background: var(--gold); color: var(--ongold); border-color: var(--gold); }
+
+/* ---------- messages / badges ---------- */
+.msg { margin-top: 12px; font-size: .88rem; font-weight: 500; }
 .msg.err { color: var(--err); }
 .msg.ok { color: var(--ok); }
-.login { max-width: 420px; margin: 0 auto; width: 100%; }
-.setup { border-color: var(--err); }
+.hint { color: var(--muted); font-size: .85rem; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; background: var(--surface2); color: var(--muted); border: 1px solid var(--line); }
+.badge.live { background: var(--oksoft); color: var(--ok); border-color: transparent; }
+.badge.hid { background: var(--surface2); color: var(--muted); }
+.badge.blk { background: var(--errsoft); color: var(--err); border-color: transparent; }
+.badge.new { background: var(--goldsoft); color: var(--goldink); border-color: transparent; }
 
-/* edit mode banner */
-.editbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: #fff7e8; border: 1px solid var(--gold); border-radius: 8px; padding: 10px 12px; margin: 0 0 6px; font-size: 0.88rem; }
-.editbar b { overflow-wrap: anywhere; }
+/* ---------- login ---------- */
+.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background:
+  radial-gradient(900px 400px at 50% -10%, var(--goldsoft), transparent 70%), var(--bg); }
+.login-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; box-shadow: var(--shadow); text-align: center; }
+.logo { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin: 0 auto 14px; background: linear-gradient(135deg, #b88a4a, #7d5624); color: #fff; font: 700 1.5rem Georgia, serif; }
+.login-card h1 { font: 600 1.45rem Georgia, serif; }
+.login-card .hint { margin: 4px 0 18px; }
+.login-card form { text-align: left; }
+.pw { position: relative; }
+.pw input { padding-right: 70px; }
+.pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; font-size: .78rem; font-weight: 700; color: var(--goldink); padding: 6px 8px; }
+.setup { max-width: 560px; margin: 40px auto; padding: 24px; border: 1px solid var(--err); border-radius: 14px; background: var(--surface); }
 
-/* live gallery preview */
-.gprev-title { margin-top: 22px; }
-.gprev { max-width: 300px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.gprev .pic { position: relative; aspect-ratio: 4 / 3; background: #eee; display: grid; place-items: center; color: var(--muted); font-size: 0.8rem; }
-.gprev .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.gprev .new { position: absolute; left: 10px; top: 10px; z-index: 1; background: var(--gold); color: var(--ongold); border-radius: 999px; padding: 2px 10px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-.gprev .cap { display: grid; gap: 4px; padding: 14px 16px 16px; }
-.gprev .cat { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--goldink); }
-.gprev .nm { font-family: Georgia, serif; font-size: 1.1rem; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
-.gprev .pu { font-size: 0.75rem; font-weight: 700; }
-.gprev .ds { font-size: 0.82rem; color: var(--muted); overflow-wrap: anywhere; white-space: pre-line; }
+/* ---------- app shell ---------- */
+.app { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 6px; background: var(--side); color: var(--sideink); padding: 20px 14px; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 18px; border-bottom: 1px solid var(--sideline); margin-bottom: 10px; }
+.brand .logo { width: 40px; height: 40px; border-radius: 12px; margin: 0; font-size: 1.15rem; }
+.brand b { display: block; font: 600 1rem Georgia, serif; letter-spacing: .02em; }
+.brand small { color: var(--sidemuted); font-size: .72rem; }
+.nav { display: grid; gap: 4px; }
+.nav button, .side-foot a, .side-foot button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 11px 12px; border: 0; background: none; color: var(--sidemuted); font-size: .92rem; font-weight: 600; text-decoration: none; border-radius: 10px; position: relative; }
+.nav button:hover, .side-foot a:hover, .side-foot button:hover { background: rgba(255,255,255,.06); color: var(--sideink); }
+.nav button[aria-current="page"] { background: rgba(184,138,74,.18); color: #f4dfb8; }
+.nav button[aria-current="page"]::before { content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: #d3a35c; }
+.nav .num { margin-left: auto; min-width: 22px; text-align: center; padding: 1px 7px; border-radius: 999px; font-size: .7rem; background: rgba(255,255,255,.1); color: var(--sideink); }
+.side-foot { margin-top: auto; display: grid; gap: 2px; border-top: 1px solid var(--sideline); padding-top: 10px; }
+.main { min-width: 0; display: flex; flex-direction: column; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 28px; position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top h1 { font: 600 1.45rem Georgia, serif; }
+.top p { color: var(--muted); font-size: .85rem; }
+.top .acts { display: flex; gap: 8px; align-items: center; }
+.top .mobile-only { display: none; }
+.content { padding: 24px 28px 60px; max-width: 1240px; width: 100%; }
 
-/* products list */
-ul.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-ul.items li { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); }
-ul.items img { width: 84px; height: 63px; object-fit: cover; border-radius: 8px; background: #eee; flex: none; }
-ul.items li.is-hidden img { opacity: 0.4; }
-ul.items li.is-hidden strong { color: var(--muted); }
-ul.items .meta { min-width: 0; flex: 1 1 180px; }
-ul.items strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-ul.items small { color: var(--muted); display: block; }
-ul.items .pur { font-weight: 700; color: var(--ink); }
-ul.items .desc { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-ul.items .badge { display: inline-block; margin-top: 2px; padding: 1px 8px; border-radius: 999px; background: var(--ink); color: var(--surface); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-.acts { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+/* ---------- cards ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+.card h2 { font: 600 1.1rem Georgia, serif; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.link-btn { background: none; border: 0; color: var(--goldink); font-weight: 700; font-size: .82rem; padding: 4px 6px; }
+.link-btn:hover { text-decoration: underline; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
 
-/* hero banner */
-.sub { margin: 26px 0 4px; font: 600 1.05rem Georgia, serif; }
-.sub:first-of-type { margin-top: 8px; }
-.hprev { position: relative; max-width: 420px; aspect-ratio: 16 / 9; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #eee; display: grid; place-items: center; color: var(--muted); font-size: 0.8rem; }
+/* ---------- overview ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat { display: grid; gap: 4px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+button.stat:hover { border-color: var(--gold); }
+.stat .chip { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--goldsoft); color: var(--goldink); margin-bottom: 6px; }
+.stat .lbl { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.stat .val { font: 600 2rem/1.1 Georgia, serif; }
+.stat .sub { color: var(--muted); font-size: .8rem; }
+.quick { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 8px; }
+.bars span { flex: 1; min-width: 0; border-radius: 6px 6px 2px 2px; background: var(--gold); opacity: .85; min-height: 3px; position: relative; }
+.bars span.zero { background: var(--line); opacity: 1; }
+.bars-x { display: flex; justify-content: space-between; color: var(--muted); font-size: .72rem; margin-top: 6px; }
+.mini { display: grid; gap: 4px; }
+.mini li, .mini .li { list-style: none; display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.mini li:last-child { border-bottom: 0; }
+.mini { margin: 0; padding: 0; }
+.av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--goldsoft); color: var(--goldink); font-weight: 800; font-size: .82rem; }
+.mini .t { min-width: 0; flex: 1; }
+.mini .t b, .mini .t small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini .t small { color: var(--muted); font-size: .8rem; }
+.mini .when { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+.mini img { width: 54px; height: 40px; object-fit: cover; border-radius: 8px; background: var(--line); flex: none; }
+.empty { color: var(--muted); padding: 18px 4px; text-align: center; font-size: .9rem; }
+
+/* ---------- toolbar ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.search { position: relative; flex: 1 1 240px; max-width: 420px; }
+.search input { padding-left: 38px; }
+.search .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 18px; height: 18px; pointer-events: none; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; border-radius: 0; background: none; padding: 8px 14px; font-size: .8rem; font-weight: 700; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--gold); color: var(--ongold); }
+.count { color: var(--muted); font-size: .85rem; font-weight: 600; }
+.spacer { flex: 1; }
+
+/* ---------- products grid ---------- */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.pcard { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+.pcard.is-hidden .pic img { opacity: .45; }
+.pic { position: relative; aspect-ratio: 4 / 3; background: var(--line); }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pic .badges { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.pic .badges .badge { background: var(--surface); }
+.pic .badges .badge.live { background: var(--oksoft); }
+.pic .badges .badge.new { background: var(--goldsoft); }
+.pbody { padding: 14px 16px 6px; display: grid; gap: 3px; flex: 1; align-content: start; }
+.pbody b { font: 600 1.02rem Georgia, serif; overflow-wrap: anywhere; }
+.pbody small { color: var(--muted); }
+.pbody .pur { color: var(--ink); font-weight: 700; font-size: .78rem; }
+.pbody .desc { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--muted); font-size: .84rem; }
+.pacts { display: flex; gap: 6px; padding: 12px 16px 16px; flex-wrap: wrap; }
+.pacts .ghost { flex: 1 1 auto; }
+
+/* ---------- hero ---------- */
+.hprev { position: relative; aspect-ratio: 16 / 9; margin-top: 12px; border: 1px dashed var(--line); border-radius: 12px; overflow: hidden; background: var(--surface2); display: grid; place-items: center; color: var(--muted); font-size: .82rem; }
 .hprev img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.vcheck { margin: 8px 0 0; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.vcheck { margin: 8px 0 0; font-size: .85rem; font-weight: 600; color: var(--muted); }
 .vcheck.good { color: var(--ok); }
 .vcheck.bad { color: var(--err); }
-.herostate { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 0.88rem; }
-ul.items .vthumb { width: 84px; height: 63px; border-radius: 8px; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; flex: none; }
-ul.items li.is-hidden .vthumb { opacity: 0.4; }
-ul.items .live { display: inline-block; margin-top: 2px; padding: 1px 8px; border-radius: 999px; background: var(--ok); color: #fff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.herostate { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--goldsoft); color: var(--ink); font-size: .9rem; font-weight: 600; }
+.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.hcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.hcard.is-hidden .pic img, .hcard.is-hidden .vthumb { opacity: .45; }
+.hcard .pic { aspect-ratio: 16 / 9; }
+.vthumb { position: absolute; inset: 0; display: grid; place-items: center; background: #1c1814; color: #fff; font-weight: 800; letter-spacing: .1em; font-size: .85rem; }
+.hcard .hb { padding: 12px 14px 4px; display: grid; gap: 2px; }
+.hcard .hb small { color: var(--muted); overflow-wrap: anywhere; }
+.hcard .pacts { padding-top: 10px; }
 
-/* registered customers (website login) */
-.ubar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 14px; }
-.ubar input { flex: 1 1 200px; width: auto; }
-.ucount { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
-ul.items .ucontact { word-break: break-all; }
-ul.items li.is-blocked strong { color: var(--err); }
-ul.items .badge.red { background: var(--err); }
+/* ---------- customers table ---------- */
+.tcard { padding: 0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: .9rem; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--surface2); }
+tr.is-blocked .cn b { color: var(--err); }
+.cust { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cust .cn { min-width: 0; }
+.cust .cn b, .cust .cn small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+.cust .cn small { color: var(--muted); }
+.cell-links { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cell-links a { font-size: .78rem; font-weight: 700; color: var(--goldink); text-decoration: none; }
+.cell-links a:hover { text-decoration: underline; }
+.muted { color: var(--muted); }
+td.nw { white-space: nowrap; }
+td.nw .dt, td.nw .sub2 { display: block; }
+td.nw .sub2 { font-size: .8rem; }
+.ract { max-width: 250px; margin-left: auto; }
+.ract { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.tempbox { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--gold); background: var(--goldsoft); border-radius: 14px; }
+.tempbox .tt { flex: 1 1 220px; min-width: 0; }
+.tempbox .tt small { display: block; color: var(--muted); }
+.tempbox code { font: 700 1.4rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; padding: 6px 12px; border-radius: 10px; background: var(--surface); border: 1px dashed var(--gold); user-select: all; }
+details.how { margin-top: 14px; color: var(--muted); font-size: .86rem; }
+details.how summary { cursor: pointer; font-weight: 700; color: var(--goldink); }
+details.how p { margin-top: 6px; }
+
+/* ---------- drawer (add / edit product) ---------- */
+.scrim { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.45); animation: fade .2s ease; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 61; width: min(560px, 100%); background: var(--bg); border-left: 1px solid var(--line); box-shadow: -10px 0 40px rgba(0,0,0,.25); overflow-y: auto; transform: translateX(100%); transition: transform .22s ease; }
+.drawer.open { transform: none; }
+.drawer-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.drawer-head h2 { font: 600 1.25rem Georgia, serif; }
+.drawer-body { padding: 8px 22px 40px; }
+.editbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--warnsoft); color: var(--warn); border: 1px solid var(--gold); border-radius: 10px; padding: 10px 12px; margin: 14px 0 0; font-size: .88rem; }
+.editbar b { overflow-wrap: anywhere; color: var(--ink); }
+.gprev-title { margin-top: 22px; }
+.gprev { max-width: 300px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.gprev .pic { aspect-ratio: 4 / 3; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
+.gprev .pic .newtag { position: absolute; left: 10px; top: 10px; z-index: 1; background: var(--gold); color: var(--ongold); border-radius: 999px; padding: 2px 10px; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.gprev .cap { display: grid; gap: 4px; padding: 14px 16px 16px; }
+.gprev .cat { font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--goldink); }
+.gprev .nm { font: 600 1.1rem/1.3 Georgia, serif; overflow-wrap: anywhere; }
+.gprev .pu { font-size: .75rem; font-weight: 700; }
+.gprev .ds { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; white-space: pre-line; }
+
+/* ---------- toasts ---------- */
+#toasts { position: fixed; z-index: 90; right: 18px; bottom: 18px; display: grid; gap: 8px; max-width: min(380px, calc(100vw - 36px)); pointer-events: none; }
+.toast { pointer-events: auto; padding: 12px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: .9rem; font-weight: 600; box-shadow: 0 8px 28px rgba(0,0,0,.3); animation: up .2s ease; }
+.toast.err { background: var(--err); color: #fff; }
+@keyframes up { from { transform: translateY(8px); opacity: 0; } }
+@keyframes fade { from { opacity: 0; } }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid2 { grid-template-columns: 1fr; } }
+@media (max-width: 899px) {
+  .app { grid-template-columns: 1fr; }
+  .side { position: fixed; z-index: 40; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--sideline); gap: 0; }
+  .side .brand, .side-foot { display: none; }
+  .nav { grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; gap: 2px; }
+  .nav button { flex-direction: column; gap: 3px; padding: 8px 4px; font-size: .68rem; text-align: center; justify-content: center; }
+  .nav button[aria-current="page"]::before { display: none; }
+  .nav .num { position: absolute; top: 2px; right: 14%; margin: 0; font-size: .6rem; padding: 0 5px; }
+  .top { padding: 14px 16px; }
+  .top h1 { font-size: 1.2rem; }
+  .top p { display: none; }
+  #reloadAll span { display: none; }
+  .top h1 + p { display: none; }
+  .top .mobile-only { display: inline-flex; }
+  .content { padding: 16px 16px 110px; }
+  #toasts { bottom: 86px; }
+}
+@media (max-width: 760px) {
+  .stats { gap: 12px; }
+  .stat { padding: 14px; }
+  .stat .val { font-size: 1.6rem; }
+  table, thead, tbody, tr, td { display: block; }
+  thead { display: none; }
+  tr { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+  tr:last-child { border-bottom: 0; }
+  td { padding: 0; border: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  td::before { content: attr(data-label); color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; flex: none; }
+  td.first, td.acts-cell { display: block; }
+  td.nw { text-align: right; }
+  .ract { max-width: none; margin-left: 0; }
+  td.first::before, td.acts-cell::before { display: none; }
+  tbody tr:hover td { background: none; }
+  .ract { justify-content: flex-start; }
+  .cust .cn b, .cust .cn small { max-width: 60vw; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Manoj Ornaments <small>Google Sheets Admin Panel</small></h1>
-  <button id="logoutBtn" type="button" class="ghost" hidden>Log out</button>
-</header>
+<!-- shown only if the script URL below was not filled in -->
+<section id="setupMsg" class="setup" hidden>
+  <h2 class="serif">Setup not finished</h2>
+  <p class="hint" style="margin-top:8px">Open <b>admin.html</b> in a text editor, find <b>API</b> near the bottom, and paste your Google Script web app URL there. Then upload the file again.</p>
+</section>
 
-<main>
-  <!-- shown only if the script URL below was not filled in -->
-  <section id="setupMsg" class="card setup" hidden>
-    <h2>Setup not finished</h2>
-    <p class="hint" style="margin:0">Open <b>admin.html</b> in a text editor, find <b>API</b> near the bottom, and paste your Google Script web app URL there (SETUP-GUIDE.txt, step 5). Then upload the file again.</p>
-  </section>
-
-  <!-- LOGIN -->
-  <section id="loginView" class="card login" hidden>
-    <h2>Admin login</h2>
+<!-- ============ LOGIN ============ -->
+<section id="loginView" class="login-wrap" hidden>
+  <div class="login-card">
+    <div class="logo">M</div>
+    <h1>Admin login</h1>
+    <p class="hint">Manoj Ornaments dashboard</p>
     <form id="loginForm" novalidate>
       <label for="password">Admin password</label>
-      <input id="password" type="password" autocomplete="current-password" required>
-      <button id="loginBtn" class="btn" type="submit">Log in</button>
+      <div class="pw">
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button type="button" id="pwToggle" aria-label="Show password">Show</button>
+      </div>
+      <button id="loginBtn" class="btn block" type="submit">Log in</button>
       <p id="loginMsg" class="msg" role="alert" hidden></p>
     </form>
-  </section>
+  </div>
+</section>
 
-  <!-- ADMIN -->
-  <div id="adminView" hidden style="display:grid;gap:24px">
-    <section class="card" id="formCard">
+<!-- ============ DASHBOARD ============ -->
+<div id="adminView" class="app" hidden>
+
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div><b>Manoj Ornaments</b><small>Admin dashboard</small></div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sections">
+      <button type="button" data-view="overview"><i data-ic="grid"></i><span>Overview</span></button>
+      <button type="button" data-view="products"><i data-ic="gem"></i><span>Products</span><span class="num" id="navProd" hidden></span></button>
+      <button type="button" data-view="hero"><i data-ic="image"></i><span>Hero banner</span></button>
+      <button type="button" data-view="customers"><i data-ic="users"></i><span>Customers</span><span class="num" id="navCust" hidden></span></button>
+    </nav>
+    <div class="side-foot">
+      <a href="./" target="_blank" rel="noopener"><i data-ic="external"></i><span>View website</span></a>
+      <button type="button" id="themeBtn"><i data-ic="moon"></i><span>Dark / Light</span></button>
+      <button type="button" id="logoutBtn"><i data-ic="logout"></i><span>Log out</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div>
+        <h1 id="viewTitle">Overview</h1>
+        <p id="viewSub">Aapki website ka poora haal ek jagah</p>
+      </div>
+      <div class="acts">
+        <button type="button" class="ghost" id="reloadAll" title="Sab kuch dobara load karein"><i data-ic="refresh"></i><span>Refresh</span></button>
+        <button type="button" class="ghost mobile-only" id="themeBtn2" aria-label="Dark or light"><i data-ic="moon"></i></button>
+        <button type="button" class="ghost mobile-only" id="logoutBtn2" aria-label="Log out"><i data-ic="logout"></i></button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ===== OVERVIEW ===== -->
+      <section id="v-overview" data-panel="overview">
+        <div class="stats">
+          <button type="button" class="stat" data-go="products">
+            <span class="chip"><i data-ic="gem"></i></span>
+            <span class="lbl">Products</span><span class="val" id="stProd">-</span><span class="sub" id="stProdSub">&nbsp;</span>
+          </button>
+          <button type="button" class="stat" data-go="hero">
+            <span class="chip"><i data-ic="image"></i></span>
+            <span class="lbl">Hero banner</span><span class="val" id="stHero">-</span><span class="sub" id="stHeroSub">&nbsp;</span>
+          </button>
+          <button type="button" class="stat" data-go="customers">
+            <span class="chip"><i data-ic="users"></i></span>
+            <span class="lbl">Customers</span><span class="val" id="stCust">-</span><span class="sub" id="stCustSub">&nbsp;</span>
+          </button>
+          <button type="button" class="stat" data-go="customers">
+            <span class="chip"><i data-ic="spark"></i></span>
+            <span class="lbl">New this week</span><span class="val" id="stWeek">-</span><span class="sub" id="stWeekSub">&nbsp;</span>
+          </button>
+        </div>
+
+        <div class="quick">
+          <button type="button" class="btn" id="qAddProd"><i data-ic="plus"></i>Add product</button>
+          <button type="button" class="ghost" data-go="hero"><i data-ic="image"></i>Change hero banner</button>
+          <button type="button" class="ghost" id="qCsv"><i data-ic="download"></i>Download customers (CSV)</button>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head"><h2>Customer sign-ups, last 14 days</h2></div>
+            <div class="bars" id="bars" role="img" aria-label="Sign-ups per day"></div>
+            <div class="bars-x"><span id="barsFrom"></span><span id="barsTo"></span></div>
+            <p class="hint" id="barsSum" style="margin-top:10px"></p>
+          </div>
+          <div class="card">
+            <div class="card-head"><h2>Latest customers</h2><button type="button" class="link-btn" data-go="customers">View all</button></div>
+            <ul class="mini" id="ovCust"></ul>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-head"><h2>Latest products</h2><button type="button" class="link-btn" data-go="products">View all</button></div>
+          <ul class="mini" id="ovProd"></ul>
+        </div>
+      </section>
+
+      <!-- ===== PRODUCTS ===== -->
+      <section id="v-products" data-panel="products" hidden>
+        <div class="toolbar">
+          <div class="search"><i data-ic="search"></i><input type="search" id="prodSearch" placeholder="Product naam ya category dhundhein…" aria-label="Search products"></div>
+          <div class="seg" id="prodFilter" role="group" aria-label="Filter">
+            <button type="button" data-f="all" aria-pressed="true">All</button>
+            <button type="button" data-f="live" aria-pressed="false">Live</button>
+            <button type="button" data-f="hidden" aria-pressed="false">Hidden</button>
+          </div>
+          <span class="count" id="prodCount"></span>
+          <span class="spacer"></span>
+          <button type="button" class="btn" id="addProdBtn"><i data-ic="plus"></i>Add product</button>
+        </div>
+        <p class="hint" style="margin:-4px 0 16px"><b>Edit</b> se naam, description ya photo badal sakte hain. <b>Hide</b> karne par product website se chhup jata hai par yahan safe rehta hai, <b>Show</b> se wapas aa jata hai.</p>
+        <p id="listMsg" class="msg" hidden></p>
+        <div id="list" class="pgrid"></div>
+      </section>
+
+      <!-- ===== HERO ===== -->
+      <section id="v-hero" data-panel="hero" hidden>
+        <p class="hint" style="margin-bottom:16px">Website ke sabse upar ka bada photo/video yahan se badalta hai. <b>Photos</b> slideshow me chalti hain. <b>Video</b> add karenge to wahi hero me chalega. Video hatana ho to <b>Hide</b> karein. Kuch bhi visible na ho to website ki default photo dikhti hai.</p>
+        <p id="heroState" class="herostate" hidden></p>
+        <div class="grid2">
+          <div class="card" id="heroCard">
+            <div class="card-head"><h2>1) Add hero photo</h2></div>
+            <form id="heroImgForm" novalidate>
+              <label for="heroFile" style="margin-top:0">Photo * (lamba / landscape photo sabse accha)</label>
+              <input type="file" id="heroFile" accept="image/jpeg,image/png,image/webp">
+              <label for="heroFocus">Crop focus</label>
+              <select id="heroFocus">
+                <option value="0.5">Beech ka hissa (Center)</option>
+                <option value="0">Upar ka hissa (Top)</option>
+                <option value="1">Neeche ka hissa (Bottom)</option>
+              </select>
+              <div class="hprev" aria-live="polite"><span id="heroPrevEmpty">Photo select karein</span><img id="heroPrev" alt="Preview of the hero photo" hidden></div>
+              <button type="submit" id="heroImgBtn" class="btn block">Add hero photo</button>
+              <p id="heroImgMsg" class="msg" role="status" aria-live="polite" hidden></p>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-head"><h2>2) Add hero video</h2></div>
+            <p class="hint">Sabse aasan: video <b>YouTube</b> par upload karein (Unlisted bhi chalega) aur link paste karein, ya <b>.mp4</b> ka seedha https link. Video bina awaaz ke chalta hai. 10-30 second ka halka video accha rehta hai.</p>
+            <form id="heroVidForm" novalidate>
+              <label for="heroVideo">Video link *</label>
+              <input type="url" id="heroVideo" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=... ya https://.../video.mp4">
+              <p id="heroVidCheck" class="vcheck" aria-live="polite"></p>
+              <button type="submit" id="heroVidBtn" class="btn block">Add hero video</button>
+              <p id="heroVidMsg" class="msg" role="status" aria-live="polite" hidden></p>
+            </form>
+            <details class="how"><summary>Video na dikhe to?</summary><p>Website ke address ke aakhir me <b>?herodebug=1</b> lagakar kholein (jaise <i>apnisite.com/?herodebug=1</i>), banner par wajah likhi aayegi.</p></details>
+          </div>
+        </div>
+        <h2 class="serif" style="font-size:1.1rem;margin:26px 0 12px">Abhi banner me ye hain</h2>
+        <p id="heroListMsg" class="msg" hidden></p>
+        <div id="heroList" class="hgrid"></div>
+      </section>
+
+      <!-- ===== CUSTOMERS ===== -->
+      <section id="v-customers" data-panel="customers" hidden>
+        <div id="tempBox" class="tempbox" hidden>
+          <div class="tt"><b id="tempWho"></b><small>Naya temporary password (sirf abhi dikhta hai). Customer ko bata dein aur login ke baad badalne ko kahein.</small></div>
+          <code id="tempPw"></code>
+          <button type="button" class="ghost primary" id="tempCopy">Copy</button>
+          <button type="button" class="ghost" id="tempClose">Close</button>
+        </div>
+        <div class="toolbar">
+          <div class="search"><i data-ic="search"></i><input type="search" id="userSearch" placeholder="Naam, email ya phone se dhundhein…" aria-label="Search customers"></div>
+          <div class="seg" id="userFilter" role="group" aria-label="Filter">
+            <button type="button" data-f="all" aria-pressed="true">All</button>
+            <button type="button" data-f="active" aria-pressed="false">Active</button>
+            <button type="button" data-f="blocked" aria-pressed="false">Blocked</button>
+          </div>
+          <span class="count" id="userCount"></span>
+          <span class="spacer"></span>
+          <button type="button" class="ghost" id="userCsv" disabled><i data-ic="download"></i>Download CSV</button>
+        </div>
+        <p id="userMsg" class="msg" hidden style="margin:0 0 12px"></p>
+        <div class="card tcard">
+          <table>
+            <thead><tr><th>Customer</th><th>Phone</th><th>Joined</th><th>Last login</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+            <tbody id="userList"></tbody>
+          </table>
+          <p id="userEmpty" class="empty" hidden></p>
+        </div>
+        <details class="how">
+          <summary>Ye data kahan save hota hai? Password ka kya?</summary>
+          <p>Jo customers website par Register / Login karte hain unka data Google Sheet ke <b>Users</b> tab me alag save hota hai, Products ya Email data se mix nahi hota, aur yahan se kuch <b>delete nahi</b> hota. <b>Block</b> karne par customer login nahi kar sakta. Customer password bhool jaye to website par <b>Forgot password</b> se khud email me code mangwa sakta hai. Aap madad karna chahein to <b>Temp password</b> random password banakar yahan dikha deta hai, ya <b>New password</b> se aap apna likh sakte hain. Customer ka purana password kisi ko dikhta nahi (Sheet me sirf code-jaisa hash hota hai).</p>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== DRAWER: add / edit product ===== -->
+  <div id="scrim" class="scrim" hidden></div>
+  <aside id="drawer" class="drawer" hidden aria-labelledby="formTitle" role="dialog" aria-modal="true">
+    <div class="drawer-head">
       <h2 id="formTitle">Add New Product &amp; Image</h2>
-      <p class="hint">Details fill karein. Image automatically resize hokar Google Drive me save hoti hai. Jo photo aur description aap yahan daalenge, wo website ke <b>Products</b> aur <b>Gallery</b> dono me sabse upar dikhegi.</p>
+      <button type="button" class="ghost" id="drawerClose" aria-label="Close">Close</button>
+    </div>
+    <div class="drawer-body" id="formCard">
+      <p class="hint" style="margin-top:14px">Details bharein. Image apne aap resize hokar Google Drive me save hoti hai. Photo aur description website ke <b>Products</b> aur <b>Gallery</b> dono me sabse upar dikhegi.</p>
 
       <div id="editBanner" class="editbar" hidden>
         <span>Aap edit kar rahe hain: <b id="editName"></b></span>
-        <button type="button" id="cancelEdit" class="ghost">Cancel edit</button>
+        <button type="button" id="cancelEdit" class="ghost sm">Cancel edit</button>
       </div>
 
       <form id="addProductForm" novalidate>
@@ -144,13 +513,8 @@ ul.items .badge.red { background: var(--err); }
             <label for="pCategory">Category *</label>
             <input type="text" id="pCategory" maxlength="60" list="catList" placeholder="e.g. Bridal Sets" required>
             <datalist id="catList">
-              <option value="Bridal Collection"></option>
-              <option value="Luxury Choker"></option>
-              <option value="Designer Sets"></option>
-              <option value="Necklaces"></option>
-              <option value="Earrings"></option>
-              <option value="Bangles"></option>
-              <option value="Rings"></option>
+              <option value="Bridal Collection"></option><option value="Luxury Choker"></option><option value="Designer Sets"></option>
+              <option value="Necklaces"></option><option value="Earrings"></option><option value="Bangles"></option><option value="Rings"></option>
             </datalist>
           </div>
         </div>
@@ -177,13 +541,12 @@ ul.items .badge.red { background: var(--err); }
           <label for="pNew">Mark as New Arrival (website par 30 din tak "New" tag dikhega)</label>
         </div>
 
-        <!-- live preview: shows how the piece will look in the website Gallery -->
         <label class="gprev-title">Gallery preview (website par aisa dikhega)</label>
         <div class="gprev" id="previewWrap">
           <div class="pic">
             <span id="pvEmpty">Photo select karein</span>
             <img id="imagePreview" alt="Preview of the chosen photo" referrerpolicy="no-referrer" hidden>
-            <span class="new" id="pvNew">New</span>
+            <span class="newtag" id="pvNew">New</span>
           </div>
           <div class="cap">
             <span class="cat" id="pvCat">Category</span>
@@ -193,67 +556,14 @@ ul.items .badge.red { background: var(--err); }
           </div>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn">Upload to Website</button>
+        <button type="submit" id="submitBtn" class="btn block">Upload to Website</button>
         <p id="formMsg" class="msg" role="status" aria-live="polite" hidden></p>
       </form>
-    </section>
+    </div>
+  </aside>
+</div>
 
-    <section class="card">
-      <h2>Products you added</h2>
-      <p class="hint"><b>Edit</b> se naam, description ya photo badal sakte hain. <b>Hide</b> karne par product website se chhup jata hai par yahan safe rehta hai, aur <b>Show</b> se wapas aa jata hai. Website ke 3 original products yahan nahi dikhte (wo website ke code me hain).</p>
-      <p id="listMsg" class="msg" hidden></p>
-      <ul id="list" class="items"></ul>
-    </section>
-
-    <section class="card" id="heroCard">
-      <h2>Home Page Banner (Hero)</h2>
-      <p class="hint">Website ke sabse upar jo bada photo dikhta hai, wo yahan se badalta hai. <b>Photos</b> ek ke baad ek slideshow me chalti hain. <b>Video</b> add karenge to wahi hero me chalega (photos tab tak pehle dikhengi). Video hatana ho to usse <b>Hide</b> karein, slideshow wapas aa jayega. Kuch bhi visible na ho to website ki apni default photo dikhti hai.</p>
-
-      <h3 class="sub">1) Hero photo add karein</h3>
-      <form id="heroImgForm" novalidate>
-        <label for="heroFile">Photo * (landscape / lamba photo sabse accha lagta hai)</label>
-        <input type="file" id="heroFile" accept="image/jpeg,image/png,image/webp">
-        <label for="heroFocus">Crop focus (photo ka kaunsa hissa dikhana hai)</label>
-        <select id="heroFocus">
-          <option value="0.5">Beech ka hissa (Center)</option>
-          <option value="0">Upar ka hissa (Top)</option>
-          <option value="1">Neeche ka hissa (Bottom)</option>
-        </select>
-        <div class="hprev" aria-live="polite"><span id="heroPrevEmpty">Photo select karein</span><img id="heroPrev" alt="Preview of the hero photo" hidden></div>
-        <button type="submit" id="heroImgBtn" class="btn">Add Hero Photo</button>
-        <p id="heroImgMsg" class="msg" role="status" aria-live="polite" hidden></p>
-      </form>
-
-      <h3 class="sub">2) Hero video add karein</h3>
-      <p class="hint" style="margin-bottom:0">Sabse aasan: apna video <b>YouTube</b> par upload karein (Unlisted bhi chalega), phir uska link yahan paste karein. Ya kisi <b>.mp4</b> file ka seedha https link. Video bina awaaz ke apne aap chalta hai. Chhota (10-30 second) aur halka video sabse accha rehta hai. Video na dikhe to website ke address ke aakhir me <b>?herodebug=1</b> lagakar kholein (jaise <i>apnisite.com/?herodebug=1</i>), banner par wajah likhi aayegi.</p>
-      <form id="heroVidForm" novalidate>
-        <label for="heroVideo">Video link *</label>
-        <input type="url" id="heroVideo" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=... ya https://.../video.mp4">
-        <p id="heroVidCheck" class="vcheck" aria-live="polite"></p>
-        <button type="submit" id="heroVidBtn" class="btn">Add Hero Video</button>
-        <p id="heroVidMsg" class="msg" role="status" aria-live="polite" hidden></p>
-      </form>
-
-      <h3 class="sub">Abhi banner me ye hain</h3>
-      <p id="heroState" class="herostate" hidden></p>
-      <p id="heroListMsg" class="msg" hidden></p>
-      <ul id="heroList" class="items"></ul>
-    </section>
-
-    <section class="card" id="usersCard">
-      <h2>Registered customers (website login)</h2>
-      <p class="hint">Jo customers website par <b>Register / Login</b> karte hain, unka data yahan alag se dikhta hai (Google Sheet ka naya <b>Users</b> tab). Ye aapke Products, Hero ya Email data se mix nahi hota, aur yahan se kuch <b>delete nahi</b> hota. <b>Block</b> karne par customer login nahi kar sakta. Customer password bhool jaye to website par <b>Forgot password</b> se khud email me code mangwa sakta hai. Aap bhi madad kar sakte hain: <b>Temp password</b> random password banakar yahan dikha deta hai, ya <b>New password</b> se aap apna likh sakte hain. Customer ka purana password kisi ko dikhta nahi (Sheet me sirf code-jaisa hash hota hai).</p>
-      <div class="ubar">
-        <input type="search" id="userSearch" placeholder="Naam, email ya phone se dhundhein…" aria-label="Search customers">
-        <span class="ucount" id="userCount"></span>
-        <button type="button" class="ghost" id="userCsv" disabled>Download CSV</button>
-        <button type="button" class="ghost" id="userRefresh">Refresh</button>
-      </div>
-      <p id="userMsg" class="msg" hidden></p>
-      <ul id="userList" class="items"></ul>
-    </section>
-  </div>
-</main>
+<div id="toasts" aria-live="polite"></div>
 
 <script>
 (() => {
@@ -264,11 +574,16 @@ const API = 'https://script.google.com/macros/s/AKfycbx3kwqUbtWC-mrjTiIbfG6dbGdz
 /* ======================================================================= */
 
 const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
 const say = (el, text, kind) => { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); el.hidden = !text; };
+const toast = (text, kind) => {
+  const t = document.createElement('div'); t.className = 'toast' + (kind === 'err' ? ' err' : ''); t.textContent = text;
+  $('#toasts').append(t); setTimeout(() => t.remove(), 4200);
+};
 const ERR = {
   wrong_password: 'Wrong password.',
   too_many_attempts: 'Too many wrong passwords. Please wait 15 minutes and try again.',
-  password_not_set: 'The admin password is not set in the Google script yet. Open Code.gs, change ADMIN_PASSWORD, then deploy again (SETUP-GUIDE.txt).',
+  password_not_set: 'The admin password is not set in the Google script yet. Open Code.gs, change ADMIN_PASSWORD, then deploy again.',
   missing_fields: 'Please fill the product name and the category.',
   bad_image: 'This photo is not valid. Please use a JPG, PNG or WebP photo.',
   image_too_large: 'The photo is too large. Please choose a smaller one.',
@@ -284,6 +599,37 @@ const ERR = {
 };
 const errText = res => ERR[res && res.error] || 'Something went wrong. Please try again.';
 
+/* ---------- icons ---------- */
+const ICONS = {
+  grid: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+  gem: '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21 8 9l3-6M12 21l4-12-3-6"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5a5.2 5.2 0 0 1 4.5 5.5"/>',
+  logout: '<path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m16 8 4 4-4 4M20 12H9"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+  download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+  spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'
+};
+const icon = name => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+$$('i[data-ic]').forEach(i => { i.outerHTML = icon(i.dataset.ic); });
+
+/* ---------- theme ---------- */
+const applyTheme = t => { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
+try { applyTheme(localStorage.getItem('mo_admin_theme')); } catch (e) {}
+const toggleTheme = () => {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  const next = dark ? 'light' : 'dark';
+  applyTheme(next); try { localStorage.setItem('mo_admin_theme', next); } catch (e) {}
+};
+$('#themeBtn').addEventListener('click', toggleTheme);
+$('#themeBtn2').addEventListener('click', toggleTheme);
+
 if (/PASTE_/.test(API)) { $('#setupMsg').hidden = false; return; }
 
 let adminKey = '';
@@ -294,17 +640,52 @@ const call = async body => {
     return await r.json();
   } catch (e) { return { ok: false, error: 'network' }; }
 };
-const thumb = id => 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w200';
+const thumb = id => 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w400';
 const bigThumb = id => 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w800';
+const fmtDate = ms => ms ? new Date(ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
+const fmtDateTime = ms => ms ? new Date(ms).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const initials = n => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+
+/* ---------- data held in memory ---------- */
+let allProducts = [], allHero = [], allUsers = [];
+let loaded = { prod: false, hero: false, users: false };
+let prodFilter = 'all', userFilter = 'all';
+
+/* ---------- navigation ---------- */
+const VIEWS = {
+  overview:  ['Overview', 'Aapki website ka poora haal ek jagah'],
+  products:  ['Products', 'Website ke products add, edit, hide ya delete karein'],
+  hero:      ['Hero banner', 'Home page ke top ka photo slideshow ya video'],
+  customers: ['Customers', 'Website par register hue customers']
+};
+function setView(v, noHash) {
+  if (!VIEWS[v]) v = 'overview';
+  $$('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== v; });
+  $$('#nav button').forEach(b => { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#viewTitle').textContent = VIEWS[v][0]; $('#viewSub').textContent = VIEWS[v][1];
+  if (!noHash) { try { history.replaceState(null, '', '#' + v); } catch (e) {} }
+  window.scrollTo(0, 0);
+}
+$$('#nav button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) setView(g.dataset.go);
+});
 
 /* ---------- login ---------- */
 const show = on => {
   $('#loginView').hidden = on;
   $('#adminView').hidden = !on;
-  $('#logoutBtn').hidden = !on;
+  if (on) setView((location.hash || '').slice(1), true);
 };
 const remember = key => { try { key ? sessionStorage.setItem('mo_admin_key', key) : sessionStorage.removeItem('mo_admin_key'); } catch (e) {} };
+const loadAll = () => { loadList(); loadHero(); loadUsers(); };
+const logout = () => { adminKey = ''; remember(''); exitEdit(); closeDrawer(true); allUsers = []; allProducts = []; allHero = []; loaded = { prod: false, hero: false, users: false }; $('#tempBox').hidden = true; show(false); };
 
+$('#pwToggle').addEventListener('click', () => {
+  const i = $('#password'), on = i.type === 'password';
+  i.type = on ? 'text' : 'password'; $('#pwToggle').textContent = on ? 'Hide' : 'Show';
+});
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('#loginBtn'), msg = $('#loginMsg');
@@ -315,20 +696,45 @@ $('#loginForm').addEventListener('submit', async e => {
   btn.disabled = false;
   if (!res.ok) { adminKey = ''; return say(msg, errText(res), 'err'); }
   $('#password').value = ''; say(msg, '');
-  remember(adminKey); show(true); loadList(); loadHero(); loadUsers();
+  remember(adminKey); show(true); loadAll();
 });
-$('#logoutBtn').addEventListener('click', () => { adminKey = ''; remember(''); exitEdit(); allUsers = []; show(false); });
+$('#logoutBtn').addEventListener('click', logout);
+$('#logoutBtn2').addEventListener('click', logout);
+$('#reloadAll').addEventListener('click', () => { loadAll(); toast('Refreshing…'); });
 
 (async () => {
   let saved = ''; try { saved = sessionStorage.getItem('mo_admin_key') || ''; } catch (e) {}
   if (saved) {
     adminKey = saved;
     const res = await call({ action: 'check' });
-    if (res.ok) { show(true); loadList(); loadHero(); loadUsers(); return; }
+    if (res.ok) { show(true); loadAll(); return; }
     adminKey = ''; remember('');
   }
   show(false);
 })();
+
+/* ---------- drawer (add / edit product) ---------- */
+let drawerTimer = 0;
+function openDrawer() {
+  clearTimeout(drawerTimer);
+  $('#drawer').hidden = false; $('#scrim').hidden = false;
+  document.body.classList.add('noscroll');
+  requestAnimationFrame(() => $('#drawer').classList.add('open'));
+  setTimeout(() => { try { $('#pName').focus({ preventScroll: true }); } catch (e) {} }, 260);
+}
+function closeDrawer(instant) {
+  $('#drawer').classList.remove('open');
+  document.body.classList.remove('noscroll');
+  clearTimeout(drawerTimer);
+  const fin = () => { $('#drawer').hidden = true; $('#scrim').hidden = true; };
+  if (instant) fin(); else drawerTimer = setTimeout(fin, 230);
+}
+$('#drawerClose').addEventListener('click', () => { if (editing) exitEdit(); closeDrawer(); });
+$('#scrim').addEventListener('click', () => { if (editing) exitEdit(); closeDrawer(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#drawer').hidden) { if (editing) exitEdit(); closeDrawer(); } });
+const startAdd = () => { exitEdit(); say($('#formMsg'), ''); openDrawer(); };
+$('#addProdBtn').addEventListener('click', startAdd);
+$('#qAddProd').addEventListener('click', () => { setView('products'); startAdd(); });
 
 /* ---------- live gallery preview (photo + text, updates while typing) ---------- */
 let previewUrl = '';   // photo chosen from the computer
@@ -386,10 +792,9 @@ function startEdit(p) {
   say($('#formMsg'), '');
   setFormTexts();
   updatePreview();
-  $('#formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  $('#pName').focus({ preventScroll: true });
+  openDrawer();
 }
-$('#cancelEdit').addEventListener('click', () => { exitEdit(); say($('#formMsg'), ''); });
+$('#cancelEdit').addEventListener('click', () => { exitEdit(); say($('#formMsg'), ''); closeDrawer(); });
 
 /* ---------- resize in the browser: 4:3 picture, max 1000 px wide ---------- */
 const loadImg = file => new Promise((res, rej) => {
@@ -458,84 +863,91 @@ $('#addProductForm').addEventListener('submit', async e => {
   btn.disabled = false;
 
   if (res.ok) {
-    exitEdit();
-    say(msg, wasEditing
-      ? 'Done! "' + name + '" update ho gaya hai. Website refresh karke dekhiye.'
-      : 'Done! "' + name + '" website ke Products aur Gallery dono me add ho gaya hai. Website refresh karke dekhiye.', 'ok');
+    exitEdit(); say(msg, ''); closeDrawer();
+    toast(wasEditing ? '"' + name + '" update ho gaya. Website refresh karke dekhiye.' : '"' + name + '" website ke Products aur Gallery dono me add ho gaya.');
     loadList();
     return;
   }
   if (res.error === 'network') {
-    say(msg, 'Could not confirm if it was saved. Check the list below before trying again' + (wasEditing ? '.' : ', so you do not add it twice.'), 'err');
+    say(msg, 'Could not confirm if it was saved. Check the Products list before trying again' + (wasEditing ? '.' : ', so you do not add it twice.'), 'err');
     loadList();
     return;
   }
   say(msg, errText(res), 'err');
-  if (res.error === 'not_found') { exitEdit(); loadList(); }
+  if (res.error === 'not_found') { exitEdit(); closeDrawer(); loadList(); }
 });
 
-/* ---------- list + edit / hide / delete ---------- */
+/* ===================== PRODUCTS ===================== */
 async function loadList() {
-  const list = $('#list'), msg = $('#listMsg');
+  const msg = $('#listMsg');
   const data = await call({ action: 'list_all' });   // the admin list also contains hidden products
-  list.textContent = '';
-  if (!data.ok) return say(msg, errText(data), 'err');
-  if (!data.products.length) return say(msg, 'Abhi koi product add nahi hua. Upar form se pehla product add kijiye.');
+  if (!data.ok) { say(msg, errText(data), 'err'); return; }
   say(msg, '');
-  data.products.forEach(p => {
-    const li = document.createElement('li');
-    if (p.hidden) li.className = 'is-hidden';
+  allProducts = data.products || []; loaded.prod = true;
+  renderProducts(); renderOverview();
+}
+
+function renderProducts() {
+  const list = $('#list'), msg = $('#listMsg');
+  const q = $('#prodSearch').value.trim().toLowerCase();
+  const rows = allProducts.filter(p =>
+    (prodFilter === 'all' || (prodFilter === 'live' ? !p.hidden : p.hidden)) &&
+    (!q || (p.name + ' ' + p.category + ' ' + p.purity).toLowerCase().includes(q)));
+  list.textContent = '';
+  $('#prodCount').textContent = allProducts.length ? (rows.length === allProducts.length ? allProducts.length : rows.length + ' / ' + allProducts.length) + ' products' : '';
+  if (!allProducts.length) { if (loaded.prod) say(msg, 'Abhi koi product add nahi hua. Upar "Add product" se pehla product add kijiye.'); return; }
+  if (!rows.length) { say(msg, 'Is search / filter se koi product nahi mila.'); return; }
+  if (msg.className.indexOf('err') < 0) say(msg, '');
+
+  rows.forEach(p => {
+    const card = el('article', 'pcard' + (p.hidden ? ' is-hidden' : ''));
+    const pic = el('div', 'pic');
     const im = document.createElement('img');
     im.src = thumb(p.image_id); im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
-    const meta = document.createElement('div'); meta.className = 'meta';
-    const strong = document.createElement('strong'); strong.textContent = p.name;
-    const small = document.createElement('small');
-    small.textContent = p.category + ' · ' + new Date(p.created_ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    meta.append(strong, small);
-    if (p.purity) {
-      const pu = document.createElement('small'); pu.className = 'pur'; pu.textContent = p.purity;
-      meta.append(pu);
-    }
-    if (p.description) {
-      const ds = document.createElement('small'); ds.className = 'desc'; ds.textContent = p.description;
-      meta.append(ds);
-    }
-    if (p.hidden) {
-      const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Hidden on website';
-      meta.append(b);
-    }
+    const badges = el('div', 'badges');
+    badges.append(el('span', 'badge ' + (p.hidden ? 'hid' : 'live'), p.hidden ? 'Hidden' : 'Live'));
+    if (p.is_new) badges.append(el('span', 'badge new', 'New'));
+    pic.append(im, badges);
 
-    const acts = document.createElement('div'); acts.className = 'acts';
-    const edit = document.createElement('button');
-    edit.type = 'button'; edit.className = 'ghost'; edit.textContent = 'Edit';
+    const body = el('div', 'pbody');
+    body.append(el('b', '', p.name), el('small', '', p.category + ' · ' + fmtDate(p.created_ms)));
+    if (p.purity) body.append(el('small', 'pur', p.purity));
+    if (p.description) body.append(el('small', 'desc', p.description));
+
+    const acts = el('div', 'pacts');
+    const edit = el('button', 'ghost', 'Edit'); edit.type = 'button';
     edit.addEventListener('click', () => startEdit(p));
-
-    const hide = document.createElement('button');
-    hide.type = 'button'; hide.className = 'ghost'; hide.textContent = p.hidden ? 'Show' : 'Hide';
+    const hide = el('button', 'ghost', p.hidden ? 'Show' : 'Hide'); hide.type = 'button';
     hide.title = p.hidden ? 'Website par dobara dikhao' : 'Website se chhupao (delete nahi hoga)';
     hide.addEventListener('click', async () => {
       hide.disabled = true;
       const res = await call({ action: 'hide', id: p.id, hidden: !p.hidden });
-      if (!res.ok && res.error !== 'not_found') { hide.disabled = false; return say(msg, errText(res), 'err'); }
+      if (!res.ok && res.error !== 'not_found') { hide.disabled = false; return toast(errText(res), 'err'); }
+      toast('"' + p.name + '" ' + (p.hidden ? 'website par wapas aa gaya.' : 'website se chhup gaya.'));
       loadList();
     });
-
-    const del = document.createElement('button');
-    del.type = 'button'; del.className = 'ghost danger'; del.textContent = 'Delete';
+    const del = el('button', 'ghost danger', 'Delete'); del.type = 'button';
     del.addEventListener('click', async () => {
       if (!confirm('Delete "' + p.name + '" from your website? This cannot be undone.\n\n(Sirf chhupana ho to "Hide" use karein.)')) return;
       del.disabled = true;
       const res = await call({ action: 'delete', id: p.id });
-      if (!res.ok && res.error !== 'not_found') { del.disabled = false; return say(msg, errText(res), 'err'); }
-      if (editing && editing.id === p.id) exitEdit();
+      if (!res.ok && res.error !== 'not_found') { del.disabled = false; return toast(errText(res), 'err'); }
+      if (editing && editing.id === p.id) { exitEdit(); closeDrawer(); }
+      toast('"' + p.name + '" delete ho gaya.');
       loadList();
     });
-
     acts.append(edit, hide, del);
-    li.append(im, meta, acts);
-    list.append(li);
+    card.append(pic, body, acts);
+    list.append(card);
   });
 }
+$('#prodSearch').addEventListener('input', renderProducts);
+$('#prodFilter').addEventListener('click', e => {
+  const b = e.target.closest('button[data-f]'); if (!b) return;
+  prodFilter = b.dataset.f;
+  $$('#prodFilter button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderProducts();
+});
 
 /* =====================  HERO BANNER (home page top)  ===================== */
 // same rules as the Google script: a YouTube link, or a direct https link to an .mp4 / .webm file
@@ -599,7 +1011,8 @@ $('#heroImgForm').addEventListener('submit', async e => {
   btn.disabled = false;
   if (res.ok) {
     $('#heroImgForm').reset(); refreshHeroPreview();
-    say(msg, 'Done! Hero photo add ho gayi hai. Website refresh karke dekhiye.', 'ok');
+    say(msg, '');
+    toast('Hero photo add ho gayi. Website refresh karke dekhiye.');
     loadHero();
     return;
   }
@@ -628,8 +1041,8 @@ $('#heroVidForm').addEventListener('submit', async e => {
   const res = await call({ action: 'hero_add', type: 'video', video: vInput.value.trim() });
   btn.disabled = false;
   if (res.ok) {
-    $('#heroVidForm').reset(); checkVideo();
-    say(msg, 'Done! Hero video add ho gaya hai. Website refresh karke dekhiye.', 'ok');
+    $('#heroVidForm').reset(); checkVideo(); say(msg, '');
+    toast('Hero video add ho gaya. Website refresh karke dekhiye.');
     loadHero();
     return;
   }
@@ -638,11 +1051,17 @@ $('#heroVidForm').addEventListener('submit', async e => {
 });
 
 async function loadHero() {
-  const list = $('#heroList'), msg = $('#heroListMsg'), state = $('#heroState');
+  const msg = $('#heroListMsg');
   const data = await call({ action: 'hero_list_all' });   // includes hidden items
+  if (!data.ok) { say(msg, errText(data), 'err'); return; }
+  allHero = data.hero || []; loaded.hero = true;
+  renderHero(); renderOverview();
+}
+
+function renderHero() {
+  const list = $('#heroList'), msg = $('#heroListMsg'), state = $('#heroState');
   list.textContent = ''; state.hidden = true;
-  if (!data.ok) return say(msg, errText(data), 'err');
-  const items = data.hero || [];
+  const items = allHero;
   if (!items.length) return say(msg, 'Abhi hero me kuch add nahi hua, isliye website ki default photo dikh rahi hai.');
   say(msg, '');
 
@@ -656,69 +1075,52 @@ async function loadHero() {
   state.hidden = false;
 
   items.forEach(h => {
-    const li = document.createElement('li');
-    if (h.hidden) li.className = 'is-hidden';
+    const card = el('article', 'hcard' + (h.hidden ? ' is-hidden' : ''));
     const yt = /^yt:([A-Za-z0-9_-]{11})$/.exec(h.video || '');
-
-    let thumbEl;
+    const pic = el('div', 'pic');
     if (h.type === 'image') {
-      thumbEl = document.createElement('img');
-      thumbEl.src = thumb(h.image_id); thumbEl.alt = ''; thumbEl.loading = 'lazy'; thumbEl.referrerPolicy = 'no-referrer';
+      const im = document.createElement('img');
+      im.src = thumb(h.image_id); im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; pic.append(im);
     } else if (yt) {
-      thumbEl = document.createElement('img');
-      thumbEl.src = 'https://img.youtube.com/vi/' + yt[1] + '/mqdefault.jpg'; thumbEl.alt = ''; thumbEl.loading = 'lazy'; thumbEl.referrerPolicy = 'no-referrer';
+      const im = document.createElement('img');
+      im.src = 'https://img.youtube.com/vi/' + yt[1] + '/mqdefault.jpg'; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; pic.append(im);
     } else {
-      thumbEl = document.createElement('div'); thumbEl.className = 'vthumb'; thumbEl.textContent = 'VIDEO';
+      pic.append(el('div', 'vthumb', 'VIDEO'));
     }
+    const badges = el('div', 'badges');
+    if (h.hidden) badges.append(el('span', 'badge hid', 'Hidden'));
+    else if (liveVideo && liveVideo.id === h.id) badges.append(el('span', 'badge live', 'Website par chal raha hai'));
+    else badges.append(el('span', 'badge live', 'Live'));
+    pic.append(badges);
 
-    const meta = document.createElement('div'); meta.className = 'meta';
-    const strong = document.createElement('strong');
-    strong.textContent = h.type === 'image' ? 'Hero photo' : (yt ? 'Hero video (YouTube)' : 'Hero video (file link)');
-    const small = document.createElement('small');
-    small.textContent = new Date(h.created_ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    meta.append(strong, small);
-    if (h.type === 'video' && !yt) {
-      const u = document.createElement('small'); u.className = 'desc'; u.textContent = h.video;
-      meta.append(u);
-    }
-    if (h.hidden) {
-      const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Hidden on website';
-      meta.append(b);
-    } else if (liveVideo && liveVideo.id === h.id) {
-      const b = document.createElement('span'); b.className = 'live'; b.textContent = 'Website par chal raha hai';
-      meta.append(b);
-    }
+    const hb = el('div', 'hb');
+    hb.append(el('b', '', h.type === 'image' ? 'Hero photo' : (yt ? 'Hero video (YouTube)' : 'Hero video (file link)')), el('small', '', fmtDate(h.created_ms)));
+    if (h.type === 'video' && !yt) hb.append(el('small', '', h.video));
 
-    const acts = document.createElement('div'); acts.className = 'acts';
-    const hide = document.createElement('button');
-    hide.type = 'button'; hide.className = 'ghost'; hide.textContent = h.hidden ? 'Show' : 'Hide';
+    const acts = el('div', 'pacts');
+    const hide = el('button', 'ghost', h.hidden ? 'Show' : 'Hide'); hide.type = 'button';
     hide.title = h.hidden ? 'Website par dobara dikhao' : 'Website se chhupao (delete nahi hoga)';
     hide.addEventListener('click', async () => {
       hide.disabled = true;
       const res = await call({ action: 'hero_hide', id: h.id, hidden: !h.hidden });
-      if (!res.ok && res.error !== 'not_found') { hide.disabled = false; return say(msg, errText(res), 'err'); }
+      if (!res.ok && res.error !== 'not_found') { hide.disabled = false; return toast(errText(res), 'err'); }
       loadHero();
     });
-    const del = document.createElement('button');
-    del.type = 'button'; del.className = 'ghost danger'; del.textContent = 'Delete';
+    const del = el('button', 'ghost danger', 'Delete'); del.type = 'button';
     del.addEventListener('click', async () => {
       if (!confirm('Delete this hero ' + (h.type === 'image' ? 'photo' : 'video') + '? This cannot be undone.\n\n(Sirf chhupana ho to "Hide" use karein.)')) return;
       del.disabled = true;
       const res = await call({ action: 'hero_delete', id: h.id });
-      if (!res.ok && res.error !== 'not_found') { del.disabled = false; return say(msg, errText(res), 'err'); }
+      if (!res.ok && res.error !== 'not_found') { del.disabled = false; return toast(errText(res), 'err'); }
       loadHero();
     });
     acts.append(hide, del);
-    li.append(thumbEl, meta, acts);
-    list.append(li);
+    card.append(pic, hb, acts);
+    list.append(card);
   });
 }
 
-/* =====================  REGISTERED CUSTOMERS (website login)  ===================== */
-let allUsers = [];
-const fmtDate = ms => ms ? new Date(ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
-const fmtDateTime = ms => ms ? new Date(ms).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
-
+/* =====================  CUSTOMERS (website login)  ===================== */
 async function loadUsers() {
   const msg = $('#userMsg');
   const data = await call({ action: 'users_list' });
@@ -727,76 +1129,107 @@ async function loadUsers() {
     return say(msg, data.error === 'bad_request' ? ERR.bad_request_users : errText(data), 'err');
   }
   say(msg, '');
-  allUsers = data.users || [];
-  renderUsers();
+  allUsers = data.users || []; loaded.users = true;
+  renderUsers(); renderOverview();
 }
 
+const waLink = phone => { const d = String(phone || '').replace(/\D/g, ''); return d.length >= 8 ? 'https://wa.me/' + d : ''; };
+
 function renderUsers() {
-  const list = $('#userList'), msg = $('#userMsg');
+  const body = $('#userList'), empty = $('#userEmpty');
   const q = $('#userSearch').value.trim().toLowerCase();
-  const rows = allUsers.filter(u => !q || [u.name, u.email, u.phone].join(' ').toLowerCase().includes(q));
-  list.textContent = '';
-  $('#userCount').textContent = allUsers.length ? (q ? rows.length + ' / ' : '') + allUsers.length + (allUsers.length === 1 ? ' customer' : ' customers') : '';
+  const rows = allUsers.filter(u =>
+    (userFilter === 'all' || u.status === userFilter) &&
+    (!q || [u.name, u.email, u.phone].join(' ').toLowerCase().includes(q)));
+  body.textContent = ''; empty.hidden = true;
+  $('#userCount').textContent = allUsers.length ? (rows.length === allUsers.length ? allUsers.length : rows.length + ' / ' + allUsers.length) + (allUsers.length === 1 ? ' customer' : ' customers') : '';
   $('#userCsv').disabled = !allUsers.length;
-  if (!allUsers.length) { if (msg.hidden) say(msg, 'Abhi kisi customer ne register nahi kiya.'); return; }
-  if (!rows.length) { say(msg, 'Is search se koi customer nahi mila.'); return; }
-  if (msg.className.indexOf('err') < 0) say(msg, '');
+  if (!allUsers.length) { empty.textContent = loaded.users ? 'Abhi kisi customer ne register nahi kiya.' : 'Loading…'; empty.hidden = false; return; }
+  if (!rows.length) { empty.textContent = 'Is search / filter se koi customer nahi mila.'; empty.hidden = false; return; }
 
   rows.forEach(u => {
-    const li = document.createElement('li');
-    if (u.status === 'blocked') li.className = 'is-blocked';
-    const meta = document.createElement('div'); meta.className = 'meta';
-    const strong = document.createElement('strong'); strong.textContent = u.name;
-    const c1 = document.createElement('small'); c1.className = 'ucontact'; c1.textContent = u.email + (u.phone ? ' · ' + u.phone : '');
-    meta.append(strong, c1);
-    const t = document.createElement('small');
-    t.textContent = 'Joined ' + fmtDate(u.created_ms) + ' · Last login ' + fmtDateTime(u.last_login_ms) + ' · ' + u.login_count + ' login' + (u.login_count === 1 ? '' : 's');
-    meta.append(t);
-    if (u.status === 'blocked') { const b = document.createElement('span'); b.className = 'badge red'; b.textContent = 'Blocked'; meta.append(b); }
+    const tr = document.createElement('tr');
+    if (u.status === 'blocked') tr.className = 'is-blocked';
 
-    const acts = document.createElement('div'); acts.className = 'acts';
-    const blk = document.createElement('button');
-    blk.type = 'button'; blk.className = 'ghost' + (u.status === 'blocked' ? '' : ' danger'); blk.textContent = u.status === 'blocked' ? 'Unblock' : 'Block';
+    const c1 = el('td', 'first'); c1.dataset.label = 'Customer';
+    const cust = el('div', 'cust');
+    const cn = el('div', 'cn'); cn.append(el('b', '', u.name), el('small', '', u.email));
+    cust.append(el('span', 'av', initials(u.name)), cn); c1.append(cust);
+
+    const c2 = el('td'); c2.dataset.label = 'Phone';
+    if (u.phone) {
+      const links = el('div', 'cell-links'); links.append(el('span', '', u.phone));
+      const wa = waLink(u.phone);
+      if (wa) { const a = el('a', '', 'WhatsApp'); a.href = wa; a.target = '_blank'; a.rel = 'noopener'; links.append(a); }
+      c2.append(links);
+    } else c2.append(el('span', 'muted', '-'));
+
+    const c3 = el('td', 'nw'); c3.dataset.label = 'Joined'; c3.textContent = fmtDate(u.created_ms);
+    const c4 = el('td'); c4.dataset.label = 'Last login';
+    c4.className = 'nw'; const lw = el('div'); lw.append(el('span', 'dt', fmtDateTime(u.last_login_ms)), el('span', 'muted sub2', u.login_count + (u.login_count === 1 ? ' login' : ' logins'))); c4.append(lw);
+    const c5 = el('td'); c5.dataset.label = 'Status'; c5.append(el('span', 'badge ' + (u.status === 'blocked' ? 'blk' : 'live'), u.status === 'blocked' ? 'Blocked' : 'Active'));
+
+    const c6 = el('td', 'acts-cell');
+    const acts = el('div', 'ract');
+    const blk = el('button', 'ghost sm' + (u.status === 'blocked' ? '' : ' danger'), u.status === 'blocked' ? 'Unblock' : 'Block'); blk.type = 'button';
     blk.addEventListener('click', async () => {
       if (u.status !== 'blocked' && !confirm('"' + u.name + '" ko block karein? Wo login nahi kar payega. (Unblock karke wapas chalu ho jayega, data delete nahi hoga.)')) return;
       blk.disabled = true;
       const res = await call({ action: 'users_block', id: u.id, blocked: u.status !== 'blocked' });
-      if (!res.ok) { blk.disabled = false; return say($('#userMsg'), errText(res), 'err'); }
+      if (!res.ok) { blk.disabled = false; return toast(errText(res), 'err'); }
+      toast('"' + u.name + '" ' + (u.status === 'blocked' ? 'unblock ho gaya.' : 'block ho gaya.'));
       loadUsers();
     });
-    const rp = document.createElement('button');
-    rp.type = 'button'; rp.className = 'ghost'; rp.textContent = 'New password';
+    const rp = el('button', 'ghost sm', 'New password'); rp.type = 'button';
     rp.addEventListener('click', async () => {
       const pw = prompt('"' + u.name + '" ke liye naya password likhein (kam se kam 8 akshar). Ye customer ko aap khud bata dein.');
       if (pw === null) return;
-      if (pw.length < 8) return say($('#userMsg'), ERR.weak_password, 'err');
+      if (pw.length < 8) return toast(ERR.weak_password, 'err');
       rp.disabled = true;
       const res = await call({ action: 'users_reset', id: u.id, password: pw });
       rp.disabled = false;
-      if (!res.ok) return say($('#userMsg'), errText(res), 'err');
-      say($('#userMsg'), 'Done! "' + u.name + '" ka naya password set ho gaya. Purane logins band ho gaye.', 'ok');
+      if (!res.ok) return toast(errText(res), 'err');
+      toast('"' + u.name + '" ka naya password set ho gaya. Purane logins band ho gaye.');
     });
-    const tp = document.createElement('button');
-    tp.type = 'button'; tp.className = 'ghost'; tp.textContent = 'Temp password';
+    const tp = el('button', 'ghost sm', 'Temp password'); tp.type = 'button';
     tp.title = 'Random password banao aur yahan dikhao, customer ko aap bata dein';
     tp.addEventListener('click', async () => {
       if (!confirm('"' + u.name + '" ke liye naya temporary password banayein? Purana password band ho jayega aur customer sab jagah se logout ho jayega.')) return;
       tp.disabled = true;
       const res = await call({ action: 'users_temp', id: u.id });
       tp.disabled = false;
-      if (!res.ok) return say($('#userMsg'), errText(res), 'err');
-      say($('#userMsg'), '"' + u.name + '" ka naya temporary password: ' + res.password + '   (ye sirf abhi dikhta hai. Customer ko bata dein aur use login ke baad badalne ko kahein.)', 'ok');
-      $('#userMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!res.ok) return toast(errText(res), 'err');
+      $('#tempWho').textContent = u.name + ' (' + u.email + ')';
+      $('#tempPw').textContent = res.password;
+      $('#tempBox').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    acts.append(blk, rp, tp);
-    li.append(meta, acts);
-    list.append(li);
+    acts.append(blk, rp, tp); c6.append(acts);
+
+    tr.append(c1, c2, c3, c4, c5, c6);
+    body.append(tr);
   });
 }
-
 $('#userSearch').addEventListener('input', renderUsers);
-$('#userRefresh').addEventListener('click', loadUsers);
-$('#userCsv').addEventListener('click', () => {
+$('#userFilter').addEventListener('click', e => {
+  const b = e.target.closest('button[data-f]'); if (!b) return;
+  userFilter = b.dataset.f;
+  $$('#userFilter button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderUsers();
+});
+$('#tempClose').addEventListener('click', () => { $('#tempBox').hidden = true; $('#tempPw').textContent = ''; });
+$('#tempCopy').addEventListener('click', async () => {
+  const t = $('#tempPw').textContent;
+  try { await navigator.clipboard.writeText(t); toast('Password copy ho gaya.'); }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($('#tempPw'));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast('Ctrl/Cmd + C dabakar copy karein.');
+  }
+});
+
+function downloadCsv() {
+  if (!allUsers.length) return toast('Abhi koi customer nahi hai.', 'err');
   // cells that start with = + - @ could run as a formula in Excel, so they get a leading quote (real phone numbers are left alone)
   const q = v => {
     let t = String(v == null ? '' : v);
@@ -811,7 +1244,75 @@ $('#userCsv').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob); a.download = 'registered-customers.csv';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-});
+}
+$('#userCsv').addEventListener('click', downloadCsv);
+$('#qCsv').addEventListener('click', downloadCsv);
+
+/* =====================  OVERVIEW  ===================== */
+function renderOverview() {
+  const DAY = 86400000, now = Date.now();
+  // numbers
+  const live = allProducts.filter(p => !p.hidden).length;
+  $('#stProd').textContent = loaded.prod ? allProducts.length : '-';
+  $('#stProdSub').textContent = loaded.prod ? live + ' live · ' + (allProducts.length - live) + ' hidden' : ' ';
+  const hp = allHero.filter(h => h.type === 'image' && !h.hidden).length, hv = allHero.filter(h => h.type === 'video' && !h.hidden).length;
+  $('#stHero').textContent = loaded.hero ? hp + hv : '-';
+  $('#stHeroSub').textContent = loaded.hero ? (hv ? 'video chal raha hai' : hp ? hp + (hp === 1 ? ' photo' : ' photos') + ' (slideshow)' : 'default photo') : ' ';
+  const blocked = allUsers.filter(u => u.status === 'blocked').length;
+  const week = allUsers.filter(u => now - u.created_ms < 7 * DAY).length;
+  $('#stCust').textContent = loaded.users ? allUsers.length : '-';
+  $('#stCustSub').textContent = loaded.users ? (allUsers.length - blocked) + ' active' + (blocked ? ' · ' + blocked + ' blocked' : '') : ' ';
+  $('#stWeek').textContent = loaded.users ? week : '-';
+  $('#stWeekSub').textContent = loaded.users ? 'pichhle 7 din me' : ' ';
+  // sidebar counters
+  const np = $('#navProd'), nc = $('#navCust');
+  np.hidden = !loaded.prod; np.textContent = allProducts.length;
+  nc.hidden = !loaded.users; nc.textContent = allUsers.length;
+
+  // sign-ups per day, last 14 days
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const days = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(start); d.setDate(d.getDate() - i); days.push({ d, n: 0 }); }
+  allUsers.forEach(u => {
+    if (!u.created_ms) return;
+    const c = new Date(u.created_ms); c.setHours(0, 0, 0, 0);
+    const slot = days.find(x => x.d.getTime() === c.getTime());
+    if (slot) slot.n++;
+  });
+  const max = Math.max(1, ...days.map(x => x.n)), total = days.reduce((s, x) => s + x.n, 0);
+  const bars = $('#bars'); bars.textContent = '';
+  days.forEach(x => {
+    const s = document.createElement('span');
+    s.className = x.n ? '' : 'zero';
+    s.style.height = x.n ? Math.max(6, Math.round(x.n / max * 100)) + '%' : '3px';
+    s.title = x.d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ': ' + x.n;
+    bars.append(s);
+  });
+  $('#barsFrom').textContent = days[0].d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  $('#barsTo').textContent = 'Aaj';
+  $('#barsSum').textContent = loaded.users ? (total ? 'Pichhle 14 din me ' + total + (total === 1 ? ' customer' : ' customers') + ' ne register kiya.' : 'Pichhle 14 din me kisi ne register nahi kiya.') : 'Loading…';
+
+  // latest customers
+  const oc = $('#ovCust'); oc.textContent = '';
+  allUsers.slice(0, 5).forEach(u => {
+    const li = el('li'); const t = el('div', 't'); t.append(el('b', '', u.name), el('small', '', u.email));
+    li.append(el('span', 'av', initials(u.name)), t, el('span', 'when', fmtDate(u.created_ms)));
+    oc.append(li);
+  });
+  if (!allUsers.length) oc.append(el('li', 'empty', loaded.users ? 'Abhi koi customer nahi.' : 'Loading…'));
+
+  // latest products
+  const op = $('#ovProd'); op.textContent = '';
+  allProducts.slice(0, 4).forEach(p => {
+    const li = el('li'); const im = document.createElement('img');
+    im.src = thumb(p.image_id); im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+    const t = el('div', 't'); t.append(el('b', '', p.name), el('small', '', p.category + (p.purity ? ' · ' + p.purity : '')));
+    li.append(im, t, el('span', 'badge ' + (p.hidden ? 'hid' : 'live'), p.hidden ? 'Hidden' : 'Live'));
+    op.append(li);
+  });
+  if (!allProducts.length) op.append(el('li', 'empty', loaded.prod ? 'Abhi koi product nahi. "Add product" se shuru karein.' : 'Loading…'));
+}
+renderOverview();
 })();
 </script>
 </body>
