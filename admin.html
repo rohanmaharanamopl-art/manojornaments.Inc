@@ -242,7 +242,7 @@ ul.items .badge.red { background: var(--err); }
 
     <section class="card" id="usersCard">
       <h2>Registered customers (website login)</h2>
-      <p class="hint">Jo customers website par <b>Register / Login</b> karte hain, unka data yahan alag se dikhta hai (Google Sheet ka naya <b>Users</b> tab). Ye aapke Products, Hero ya Email data se mix nahi hota, aur yahan se kuch <b>delete nahi</b> hota. <b>Block</b> karne par customer login nahi kar sakta. Customer password bhool jaye to <b>New password</b> se aap naya set karke use bata sakte hain.</p>
+      <p class="hint">Jo customers website par <b>Register / Login</b> karte hain, unka data yahan alag se dikhta hai (Google Sheet ka naya <b>Users</b> tab). Ye aapke Products, Hero ya Email data se mix nahi hota, aur yahan se kuch <b>delete nahi</b> hota. <b>Block</b> karne par customer login nahi kar sakta. Customer password bhool jaye to website par <b>Forgot password</b> se khud email me code mangwa sakta hai. Aap bhi madad kar sakte hain: <b>Temp password</b> random password banakar yahan dikha deta hai, ya <b>New password</b> se aap apna likh sakte hain. Customer ka purana password kisi ko dikhta nahi (Sheet me sirf code-jaisa hash hota hai).</p>
       <div class="ubar">
         <input type="search" id="userSearch" placeholder="Naam, email ya phone se dhundhein…" aria-label="Search customers">
         <span class="ucount" id="userCount"></span>
@@ -776,7 +776,19 @@ function renderUsers() {
       if (!res.ok) return say($('#userMsg'), errText(res), 'err');
       say($('#userMsg'), 'Done! "' + u.name + '" ka naya password set ho gaya. Purane logins band ho gaye.', 'ok');
     });
-    acts.append(blk, rp);
+    const tp = document.createElement('button');
+    tp.type = 'button'; tp.className = 'ghost'; tp.textContent = 'Temp password';
+    tp.title = 'Random password banao aur yahan dikhao, customer ko aap bata dein';
+    tp.addEventListener('click', async () => {
+      if (!confirm('"' + u.name + '" ke liye naya temporary password banayein? Purana password band ho jayega aur customer sab jagah se logout ho jayega.')) return;
+      tp.disabled = true;
+      const res = await call({ action: 'users_temp', id: u.id });
+      tp.disabled = false;
+      if (!res.ok) return say($('#userMsg'), errText(res), 'err');
+      say($('#userMsg'), '"' + u.name + '" ka naya temporary password: ' + res.password + '   (ye sirf abhi dikhta hai. Customer ko bata dein aur use login ke baad badalne ko kahein.)', 'ok');
+      $('#userMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    acts.append(blk, rp, tp);
     li.append(meta, acts);
     list.append(li);
   });
