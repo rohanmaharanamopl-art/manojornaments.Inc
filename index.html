@@ -735,6 +735,16 @@ body.pf-open{overflow:hidden}
         <button type="button" role="tab" id="tabReg" aria-selected="false" aria-controls="regForm">Register</button>
       </div>
 
+      <!-- shown when someone clicks into the contact form: asks if they already have an account -->
+      <div id="askView" class="pf-form" hidden>
+        <p class="pf-note" style="margin:0">Existing clients can log in and we fill in your details for you. New here? Create a free account in a minute.</p>
+        <div class="pf-actions">
+          <button type="button" id="askYes" class="btn btn-gold w-full !py-3">Yes, I am an existing client</button>
+          <button type="button" id="askNo" class="btn btn-ghost w-full !py-3">No, I am new</button>
+          <button type="button" id="askSkip" class="au-link" style="padding:.6rem 0;background:none;border:0;cursor:pointer">Skip, just send my message</button>
+        </div>
+      </div>
+
       <form id="loginForm" class="pf-form" novalidate>
         <div>
           <label class="lbl" for="liEmail">Email Address</label>
@@ -1340,7 +1350,7 @@ $('#formReset').addEventListener('click', () => {
     $('#tabLogin').setAttribute('aria-selected', String(!reg));
     $('#tabReg').setAttribute('aria-selected', String(reg));
     $('#loginForm').hidden = reg; $('#regForm').hidden = !reg;
-    $('#forgotForm').hidden = true; $('#resetForm').hidden = true;
+    $('#forgotForm').hidden = true; $('#resetForm').hidden = true; $('#askView').hidden = true;
     $('#tabsBar').hidden = false;
     $('#auTitle').textContent = reg ? 'Create your account' : 'Welcome back';
     say($('#liMsg'), ''); say($('#rgMsg'), ''); say($('#fpMsg'), ''); say($('#rsMsg'), '');
@@ -1348,7 +1358,7 @@ $('#formReset').addEventListener('click', () => {
   // forgot password views: 'ask' = e-mail form, 'code' = code + new password
   let fpEmail = '';
   const showForgot = step => {
-    $('#tabsBar').hidden = true;
+    $('#tabsBar').hidden = true; $('#askView').hidden = true;
     $('#loginForm').hidden = true; $('#regForm').hidden = true;
     $('#forgotForm').hidden = step !== 'ask'; $('#resetForm').hidden = step !== 'code';
     $('#auTitle').textContent = step === 'ask' ? 'Forgot password' : 'Choose a new password';
@@ -1361,6 +1371,7 @@ $('#formReset').addEventListener('click', () => {
   const openDlg = () => {
     if (!dlg || typeof dlg.showModal !== 'function') { location.hash = '#contact'; return; }
     if (typeof setMenu === 'function') setMenu(false);
+    if (!me && !$('#askView').hidden && !forceAsk) setTab(false);   // opened from the header Login button: show login, not the question
     if (!dlg.open) { try { dlg.showModal(); } catch (e) { return; } }
     document.body.classList.add('pf-open');
     if (!me) (($('#regForm').hidden ? $('#liEmail') : $('#rgName')) || dlg).focus();
@@ -1385,6 +1396,34 @@ $('#formReset').addEventListener('click', () => {
   const done = (res, text) => {
     me = res.user; store.set({ email: res.user.email, token: res.token }); store.setName(me);
     paint(); closeDlg(); toast(text);
+  };
+
+  /* ---- "Are you an existing client?" when someone clicks into the contact form (asked once per visit) ---- */
+  let forceAsk = false;
+  const showAsk = () => {
+    $('#tabsBar').hidden = true;
+    ['loginForm', 'regForm', 'forgotForm', 'resetForm'].forEach(id => { $('#' + id).hidden = true; });
+    $('#askView').hidden = false;
+    $('#auTitle').textContent = 'Are you an existing client?';
+  };
+  $('#askYes').addEventListener('click', () => { setTab(false); $('#liEmail').focus(); });
+  $('#askNo').addEventListener('click', () => { setTab(true); $('#rgName').focus(); });
+  $('#askSkip').addEventListener('click', () => closeDlg());
+  let asked = false; try { asked = sessionStorage.getItem('mo_ask_v1') === '1'; } catch (e) {}
+  $('#leadForm').addEventListener('focusin', () => {
+    if (asked || me || !dlg || typeof dlg.showModal !== 'function') return;
+    asked = true; try { sessionStorage.setItem('mo_ask_v1', '1'); } catch (e) {}
+    forceAsk = true; showAsk(); openDlg(); forceAsk = false;
+    $('#askYes').focus();
+  });
+
+  /* a new account is also copied (name, email, phone only - never the password) to the main Google Sheet, tab "Registered" */
+  const mirrorRegister = b => {
+    try {
+      const a = $('#leadForm').getAttribute('action');
+      if (!a) return;
+      fetch(a, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ formType: 'register', name: b.name, email: b.email, phone: b.phone || '' }) }).catch(() => {});
+    } catch (e) {}
   };
 
   /* ---- forgot password ---- */
@@ -1459,6 +1498,7 @@ $('#formReset').addEventListener('click', () => {
       if (res.error === 'email_exists') { $('#liEmail').value = body.email; setTab(false); say($('#liMsg'), MSG.email_exists); return; }
       return say(msg, msgOf(res));
     }
+    mirrorRegister(body);
     $('#regForm').reset(); done(res, 'Account created. Welcome!');
   });
 
